@@ -1,0 +1,52 @@
+{
+    "$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
+    "organizeImports": {
+        "enabled": true
+    },
+    "formatter": {
+        "indentStyle": "space",
+        "indentWidth": 2
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "a11y": {
+                "useKeyWithClickEvents": "off",
+                "noSvgWithoutTitle": "off",
+                "useButtonType": "off"
+            },
+            "recommended": true,
+            "complexity": {
+                "noForEach": "off"
+            },
+            "suspicious": {
+                "noExplicitAny": "off",
+                "noArrayIndexKey": "off"
+            },
+            "style": {
+                "useSelfClosingElements": "off"
+            },
+            "correctness": {
+                "useExhaustiveDependencies": "warn"
+            },
+            "security": {
+                "noDangerouslySetInnerHtml": "off"
+            }
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "jsxQuoteStyle": "single",
+            "semicolons": "asNeeded"
+        }
+    },
+    "files": {
+        "ignore": [
+            "uno.config.ts",
+            "app.config.js",
+            "packages/**/coverage",
+            "aggregate-coverage.js"
+        ]
+    }
+}

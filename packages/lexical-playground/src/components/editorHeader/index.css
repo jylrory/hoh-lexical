@@ -1,0 +1,16 @@
+.post-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.post-actions-container {
+  display: flex;
+}
+
+.post-actions-container .post-actions-action-button + .post-actions-action-button {
+  margin-left: 8px;
+}
+
+.post-actions-container .post-actions-action-button {
+  font-weight: 500;
+}

@@ -1,0 +1,11 @@
+.sidebar-post-data-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+}
+
+.sidebar-post-data-title .prefix-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}

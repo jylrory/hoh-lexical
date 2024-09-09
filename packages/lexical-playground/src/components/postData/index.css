@@ -1,0 +1,27 @@
+.post-data-input-container {
+  margin-bottom: 8px;
+}
+
+.post-data-input-container .post-data-input-title {
+  margin-bottom: 4px;
+}
+
+.post-data-input-container .post-data-input-title,
+.post-data-input-container .post-data-input-subtitle {
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.post-data-input-container .post-data-input-sub-container {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.post-data-input-container .post-data-input-subtitle {
+  font-size: 0.8em;
+}
+
+.post-data-input-container .post-data-input-feature-image {
+  height: 100px;
+}
