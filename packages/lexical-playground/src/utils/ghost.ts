@@ -53,13 +53,7 @@ export async function auth() {
   })
   // 没有拿到数据就跳登录
   if (!response.ok) {
-    // 判是否本地
-    if (window.location.origin.includes('localhost')) {
-      window.location.href = 'http://localhost:2368/ghost/#/signin'
-    } else {
-      window.location.href = '/ghost/#/signin'
-    }
-    return
+    window.location.href = '/ghost/#/signin'
   }
 
   const data = await response.json()
@@ -71,11 +65,15 @@ export async function createPost({
   html,
   featureImage,
   featureImageAlt,
+  metaTitle,
+  metaDescription,
 }: {
   title: string
   html: string
   featureImage?: string
   featureImageAlt?: string
+  metaTitle?: string
+  metaDescription?: string
 }) {
   const response = await api.posts.add(
     {
@@ -84,6 +82,8 @@ export async function createPost({
       status: 'draft',
       feature_image: featureImage,
       feature_image_alt: featureImageAlt,
+      meta_title: metaTitle || title,
+      meta_description: metaDescription,
     },
     {
       source: 'html',
@@ -127,12 +127,16 @@ export async function updatePost({
   html,
   updated_at,
   featureImage,
+  metaTitle,
+  metaDescription,
 }: {
   id: string
   updated_at: Date
   title?: string
   html?: string
   featureImage?: string
+  metaTitle?: string
+  metaDescription?: string
 }) {
   const response = await api.posts.edit(
     id,
@@ -141,6 +145,8 @@ export async function updatePost({
       updated_at: updated_at,
       html,
       feature_image: featureImage,
+      meta_title: metaTitle || title,
+      meta_description: metaDescription,
     },
     {
       source: 'html',
@@ -154,6 +160,7 @@ export async function updatePost({
   message.success('Saved successfully')
   return {
     success: true,
+    post: response.data,
   }
 }
 

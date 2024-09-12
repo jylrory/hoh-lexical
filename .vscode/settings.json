@@ -14,5 +14,12 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "cSpell.words": ["antd", "Collab", "Excalidraw", "signin", "Unpublish"]
+  "cSpell.words": [
+    "Alignable",
+    "antd",
+    "Collab",
+    "Excalidraw",
+    "signin",
+    "Unpublish"
+  ]
 }

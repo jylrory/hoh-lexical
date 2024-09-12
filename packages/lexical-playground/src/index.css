@@ -16,6 +16,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /* background: #eee; */
   /* padding: 0 20px; */
+  overflow: hidden;
 }
 
 header {
@@ -46,13 +47,13 @@ header h1 {
 }
 
 .editor-shell {
-  margin: 0 auto 20px;
+  margin: 0 auto;
   border-radius: 2px;
-  /* max-width: 1100px; */
   color: #000;
   position: relative;
   line-height: 1.7;
   font-weight: 400;
+  min-height: calc(100vh - 60px);
 }
 
 .editor-shell .editor-container {
@@ -1742,13 +1743,13 @@ button.item.dropdown-item-active i {
   z-index: 3;
 }
 
-.PlaygroundEditorTheme__blockCursor {
+.hoh-theme__blockCursor {
   display: block;
   pointer-events: none;
   position: absolute;
 }
 
-.PlaygroundEditorTheme__blockCursor:after {
+.hoh-theme__blockCursor:after {
   content: '';
   display: block;
   position: absolute;
@@ -1781,12 +1782,15 @@ button.item.dropdown-item-active i {
 
 .editor-and-toolbar-container .toolbar {
   border-bottom: 1px solid #eeeeee;
+  flex-wrap: wrap;
+  height: max-content;
 }
 
 .editor-header-container {
   position: sticky;
   width: 100%;
   top: 0;
+  height: 60px;
   z-index: 10;
   padding: 12px;
   background-color: white;
@@ -1795,6 +1799,7 @@ button.item.dropdown-item-active i {
 }
 
 .post-edit-area {
+  height: calc(100vh - 60px);
   display: flex;
   justify-content: center;
   padding: 0 20px;
@@ -1802,11 +1807,13 @@ button.item.dropdown-item-active i {
 
 .post-edit-area .main-area {
   padding: 12px;
+  overflow-y: auto;
 }
 
 .post-edit-area .post-right-sidebar {
   border-left: 1px solid #eeeeee;
-  flex: 1;
+  flex-shrink: 0;
+  flex-grow: 1;
   max-width: 300px;
   padding: 12px;
 }
@@ -1832,4 +1839,8 @@ button.item.dropdown-item-active i {
   background-image: url(images/icons/google.svg);
   background-repeat: no-repeat;
   background-position: center;
+}
+
+a[data-type="button"] {
+  display: inline-block;
 }

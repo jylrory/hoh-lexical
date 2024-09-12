@@ -6,11 +6,11 @@
  *
  */
 
-import {registerDragonSupport} from '@lexical/dragon';
-import {createEmptyHistoryState, registerHistory} from '@lexical/history';
-import {HeadingNode, QuoteNode, registerRichText} from '@lexical/rich-text';
-import {mergeRegister} from '@lexical/utils';
-import {createEditor} from 'lexical';
+import { registerDragonSupport } from '@lexical/dragon';
+import { createEmptyHistoryState, registerHistory } from '@lexical/history';
+import { HeadingNode, QuoteNode, registerRichText } from '@lexical/rich-text';
+import { mergeRegister } from '@lexical/utils';
+import { createEditor } from 'lexical';
 
 import prepopulatedRichText from './prepopulatedRichText.mjs';
 
@@ -26,7 +26,7 @@ const initialConfig = {
   },
   theme: {
     // Adding styling to Quote node, see styles.css
-    quote: 'PlaygroundEditorTheme__quote',
+    quote: 'hoh-theme__quote',
   },
 };
 const editor = createEditor(initialConfig);
@@ -39,8 +39,8 @@ mergeRegister(
   registerHistory(editor, createEmptyHistoryState(), 300),
 );
 
-editor.update(prepopulatedRichText, {tag: 'history-merge'});
+editor.update(prepopulatedRichText, { tag: 'history-merge' });
 
-editor.registerUpdateListener(({editorState}) => {
+editor.registerUpdateListener(({ editorState }) => {
   stateRef.value = JSON.stringify(editorState.toJSON(), undefined, 2);
 });

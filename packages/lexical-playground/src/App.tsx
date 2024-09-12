@@ -25,6 +25,7 @@ import TestRecorderPlugin from './plugins/TestRecorderPlugin'
 import TypingPerfPlugin from './plugins/TypingPerfPlugin'
 import Settings from './Settings'
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme'
+import { useState } from 'react'
 
 console.warn(
   'If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting.',
@@ -113,6 +114,12 @@ function $prepopulatedRichText() {
 applyHtmlToRichContentPatches()
 
 function App(): JSX.Element {
+  const [isDev, setIsDev] = useState(false)
+  const url = new URL(window.location.href)
+  if (url.searchParams.get('dev') === '1') {
+    setIsDev(true)
+  }
+
   const {
     settings: { isCollab, emptyEditor, measureTypingPerf },
   } = useSettings()
@@ -143,10 +150,10 @@ function App(): JSX.Element {
               <div className='editor-shell'>
                 <Editor />
               </div>
-              <Settings />
-              {isDevPlayground ? <DocsPlugin /> : null}
+              {isDev && <Settings />}
+              {/* {isDevPlayground ? <DocsPlugin /> : null}
               {isDevPlayground ? <PasteLogPlugin /> : null}
-              {isDevPlayground ? <TestRecorderPlugin /> : null}
+              {isDevPlayground ? <TestRecorderPlugin /> : null} */}
 
               {measureTypingPerf ? <TypingPerfPlugin /> : null}
             </PostContext>

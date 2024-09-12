@@ -75,6 +75,7 @@ import TwitterPlugin from './plugins/TwitterPlugin'
 import YouTubePlugin from './plugins/YouTubePlugin'
 import ContentEditable from './ui/ContentEditable'
 import { auth } from './utils/ghost'
+import ButtonPlugin from './plugins/ButtonPlugin'
 
 const skipCollaborationInit =
   // @ts-expect-error
@@ -187,7 +188,6 @@ export default function Editor(): JSX.Element {
                 <ComponentPickerPlugin />
                 <EmojiPickerPlugin />
                 <AutoEmbedPlugin />
-
                 <MentionsPlugin />
                 <EmojisPlugin />
                 <HashtagPlugin />
@@ -220,7 +220,7 @@ export default function Editor(): JSX.Element {
                       ErrorBoundary={LexicalErrorBoundary}
                     />
                     <MarkdownShortcutPlugin />
-                    <CodeHighlightPlugin />
+                    {/* <CodeHighlightPlugin /> */}
                     <ListPlugin />
                     <CheckListPlugin />
                     <ListMaxIndentLevelPlugin maxDepth={7} />
@@ -246,10 +246,11 @@ export default function Editor(): JSX.Element {
                     <CollapsiblePlugin />
                     <PageBreakPlugin />
                     <LayoutPlugin />
+                    <ButtonPlugin />
                     {floatingAnchorElem && !isSmallWidthViewport && (
                       <>
                         <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
-                        <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+                        {/* <CodeActionMenuPlugin anchorElem={floatingAnchorElem} /> */}
                         <FloatingLinkEditorPlugin
                           anchorElem={floatingAnchorElem}
                           isLinkEditMode={isLinkEditMode}

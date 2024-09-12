@@ -6,10 +6,10 @@
  *
  */
 
-const hostName = window.location.hostname;
+const hostName = window.location.hostname
 export const isDevPlayground: boolean =
   hostName !== 'playground.lexical.dev' &&
-  hostName !== 'lexical-playground.vercel.app';
+  hostName !== 'lexical-playground.vercel.app'
 
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,
@@ -25,16 +25,16 @@ export const DEFAULT_SETTINGS = {
   shouldUseLexicalContextMenu: false,
   showNestedEditorTreeView: false,
   showTableOfContents: false,
-  showTreeView: true,
+  showTreeView: false,
   tableCellBackgroundColor: true,
   tableCellMerge: true,
-} as const;
+} as const
 
 // These are mutated in setupEnv
 export const INITIAL_SETTINGS: Record<SettingName, boolean> = {
   ...DEFAULT_SETTINGS,
-};
+}
 
-export type SettingName = keyof typeof DEFAULT_SETTINGS;
+export type SettingName = keyof typeof DEFAULT_SETTINGS
 
-export type Settings = typeof INITIAL_SETTINGS;
+export type Settings = typeof INITIAL_SETTINGS

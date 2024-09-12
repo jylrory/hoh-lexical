@@ -33,21 +33,57 @@ export default function EditorHeader(): JSX.Element {
 
       setIsSaveLoading(true)
       isNewPost
-        ? await createPost({
-            title: postContext?.post.title ?? '(untitled)',
-            html: `<!--kg-card-begin: html-->\n${htmlString}\n<!--kg-card-end: html-->`,
-            featureImage: postContext?.post.feature_image || undefined,
-          })
-        : await updatePost({
-            id: postContext.post.id,
-            html: htmlForGhost,
-            title: postContext.post.title,
-            updated_at: new Date(postContext.post.updated_at ?? ''),
-            featureImage: postContext?.post.feature_image || undefined,
-          })
+        ? await createNewPost(htmlForGhost)
+        : await updateCurrentPost(htmlForGhost)
 
       setIsSaveLoading(false)
     })
+  }
+
+  const updateCurrentPost = async (htmlForGhost: string) => {
+    if (!postContext) {
+      message.error('No post found')
+      return
+    }
+
+    const updatedPostResponse = await updatePost({
+      id: postContext.post.id,
+      html: htmlForGhost,
+      title: postContext.post.title,
+      updated_at: new Date(postContext.post.updated_at ?? ''),
+      featureImage: postContext?.post.feature_image || undefined,
+      metaTitle: postContext?.post.meta_title || undefined,
+      metaDescription: postContext?.post.meta_description || undefined,
+    })
+
+    if (!updatedPostResponse.success) {
+      return
+    }
+
+    postContext.updatePost({
+      updated_at: updatedPostResponse.post.updated_at,
+      html: htmlForGhost,
+    })
+  }
+
+  const createNewPost = async (htmlForGhost: string) => {
+    const createResponse = await createPost({
+      title: postContext?.post.title ?? '(untitled)',
+      html: htmlForGhost,
+      featureImage: postContext?.post.feature_image || undefined,
+      metaTitle: postContext?.post.meta_title || undefined,
+      metaDescription: postContext?.post.meta_description || undefined,
+    })
+
+    if (!createResponse.success) {
+      return
+    }
+
+    postContext?.updatePost(createResponse.post)
+
+    const url = new URL(window.location.href)
+    url.searchParams.set('id', createResponse.post.id)
+    history.pushState({}, '', url)
   }
 
   const handlePublishAndUnpublish = async () => {
@@ -128,6 +164,7 @@ export default function EditorHeader(): JSX.Element {
           className='post-actions-action-button'
           loading={isPublishLoading}
           onClick={handlePublishAndUnpublish}
+          disabled={!postContext?.post.id}
         >
           {isPublished ? 'Unpublish' : 'Publish'}
         </Button>

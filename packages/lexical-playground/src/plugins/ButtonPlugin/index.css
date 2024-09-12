@@ -1,0 +1,57 @@
+.button-form.row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.button-form.row>div {
+  margin-bottom: 0;
+}
+
+.button-form.row .switch-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.button-form.row .switch-container label {
+  display: flex;
+  flex: 1;
+  color: #666;
+  width: 90px;
+}
+
+.button-form.row .switch-button {
+  background-color: rgb(206, 208, 212);
+  height: 24px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  width: 44px;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  border: 2px solid transparent;
+}
+
+.button-form.row .switch-button[aria-checked='true'] {
+  background-color: rgb(24, 119, 242);
+}
+
+.button-form.row .switch-button span {
+  top: 0px;
+  left: 0px;
+  display: block;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 12px;
+  background-color: white;
+  transition: transform 0.2s;
+}
+
+.button-form.row .switch-button[aria-checked='true'] span {
+  transform: translateX(20px);
+}
+

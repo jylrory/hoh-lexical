@@ -6,28 +6,21 @@
  *
  */
 
-import babel from '@rollup/plugin-babel';
-import commonjs from '@rollup/plugin-commonjs';
-import react from '@vitejs/plugin-react';
-import { createRequire } from 'node:module';
-import { defineConfig } from 'vite';
-import { replaceCodePlugin } from 'vite-plugin-replace';
+import babel from '@rollup/plugin-babel'
+import commonjs from '@rollup/plugin-commonjs'
+import react from '@vitejs/plugin-react'
+import { createRequire } from 'node:module'
+import { defineConfig } from 'vite'
+import { replaceCodePlugin } from 'vite-plugin-replace'
 
-import moduleResolution from '../shared/viteModuleResolution';
-import viteCopyEsm from './viteCopyEsm';
+import moduleResolution from '../shared/viteModuleResolution'
+import viteCopyEsm from './viteCopyEsm'
 
-const require = createRequire(import.meta.url);
+const require = createRequire(import.meta.url)
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   return {
-    server: {
-      proxy: {
-        "/ghost/api": {
-          target: "http://127.0.0.1:2368",
-          changeOrigin: true,
-        },
-      },
-    },
+    base: '/ghost/classic-editor',
     build: {
       outDir: 'build',
       rollupOptions: {
@@ -43,9 +36,9 @@ export default defineConfig(({ command }) => {
               warning.id,
             )
           ) {
-            return;
+            return
           }
-          warn(warning);
+          warn(warning)
         },
       },
     },
@@ -93,5 +86,5 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: moduleResolution(command === 'serve' ? 'source' : 'development'),
     },
-  };
-});
+  }
+})

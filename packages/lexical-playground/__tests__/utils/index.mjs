@@ -6,18 +6,18 @@
  *
  */
 
-import {expect, test as base} from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 import * as glob from 'glob';
-import {randomUUID} from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import prettier from 'prettier';
-import {URLSearchParams} from 'url';
+import { URLSearchParams } from 'url';
 
-import {selectAll} from '../keyboardShortcuts/index.mjs';
+import { selectAll } from '../keyboardShortcuts/index.mjs';
 
 function findAsset(pattern) {
   const prefix = 'packages/lexical-playground/build';
   const resolvedPattern = `${prefix}/assets/${pattern}`;
-  for (const fn of glob.sync(resolvedPattern, {windowsPathsNoEscape: true})) {
+  for (const fn of glob.sync(resolvedPattern, { windowsPathsNoEscape: true })) {
     return fn.replaceAll('\\', '/').slice(prefix.length);
   }
   throw new Error(`Missing asset at ${resolvedPattern}`);
@@ -94,13 +94,12 @@ export async function initialize({
   appSettings.shouldUseLexicalContextMenu = !!shouldUseLexicalContextMenu;
 
   const urlParams = appSettingsToURLParams(appSettings);
-  const url = `http://localhost:${E2E_PORT}/${
-    isCollab ? 'split/' : ''
-  }?${urlParams.toString()}`;
+  const url = `http://localhost:${E2E_PORT}/${isCollab ? 'split/' : ''
+    }?${urlParams.toString()}`;
 
   // Having more horizontal space prevents redundant text wraps for tests
   // which affects CMD+ArrowRight/Left navigation
-  page.setViewportSize({height: 1000, width: isCollab ? 2500 : 1250});
+  page.setViewportSize({ height: 1000, width: isCollab ? 2500 : 1250 });
   await page.goto(url);
 
   await exposeLexicalEditor(page);
@@ -126,7 +125,7 @@ async function exposeLexicalEditor(page) {
     await assertHTML(
       page,
       html`
-        <p class="PlaygroundEditorTheme__paragraph"><br /></p>
+        <p class="hoh-theme__paragraph"><br /></p>
       `,
     );
   }
@@ -150,7 +149,7 @@ export const test = base.extend({
   shouldUseLexicalContextMenu: false,
 });
 
-export {expect} from '@playwright/test';
+export { expect } from '@playwright/test';
 
 function appSettingsToURLParams(appSettings) {
   const params = new URLSearchParams();
@@ -202,7 +201,7 @@ async function assertHTMLOnPageOrFrame(
       actual,
       `innerHTML of contenteditable in ${frameName} did not match`,
     ).toEqual(expected);
-  }).toPass({intervals: [100, 250, 500], timeout: 5000});
+  }).toPass({ intervals: [100, 250, 500], timeout: 5000 });
 }
 
 /**
@@ -212,7 +211,7 @@ export async function assertHTML(
   page,
   expectedHtml,
   expectedHtmlFrameRight = expectedHtml,
-  {ignoreClasses = false, ignoreInlineStyles = false} = {},
+  { ignoreClasses = false, ignoreInlineStyles = false } = {},
   actualHtmlModificationsCallback,
 ) {
   if (IS_COLLAB) {
@@ -256,7 +255,7 @@ export function getPageOrFrame(page) {
 export async function assertTableSelectionCoordinates(page, coordinates) {
   const pageOrFrame = getPageOrFrame(page);
 
-  const {_anchor, _focus} = await pageOrFrame.evaluate(() => {
+  const { _anchor, _focus } = await pageOrFrame.evaluate(() => {
     const editor = window.lexicalEditor;
     const editorState = editor.getEditorState();
     const selection = editorState._selection;
@@ -316,7 +315,7 @@ async function assertSelectionOnPageOrFrame(page, expected) {
       return path.reverse();
     };
 
-    const {anchorNode, anchorOffset, focusNode, focusOffset} =
+    const { anchorNode, anchorOffset, focusNode, focusOffset } =
       window.getSelection();
 
     return {
@@ -437,7 +436,7 @@ async function pasteWithClipboardDataFromPageOrFrame(
           const [base64, type] = clipboardValue;
           const res = await fetch(base64);
           const blob = await res.blob();
-          files.push(new File([blob], 'file', {type}));
+          files.push(new File([blob], 'file', { type }));
         }
       }
       let eventClipboardData;
@@ -484,7 +483,7 @@ async function pasteWithClipboardDataFromPageOrFrame(
         }
       }
     },
-    {canUseBeforeInput, clipboardData},
+    { canUseBeforeInput, clipboardData },
   );
 }
 
@@ -645,7 +644,7 @@ export async function insertImageCaption(page, caption) {
 }
 
 export async function mouseMoveToSelector(page, selector) {
-  const {x, width, y, height} = await selectorBoundingBox(page, selector);
+  const { x, width, y, height } = await selectorBoundingBox(page, selector);
   await page.mouse.move(x + width / 2, y + height / 2);
 }
 
@@ -707,7 +706,7 @@ export async function dragImage(
   );
 }
 
-export function prettifyHTML(string, {ignoreClasses, ignoreInlineStyles} = {}) {
+export function prettifyHTML(string, { ignoreClasses, ignoreInlineStyles } = {}) {
   let output = string;
 
   if (ignoreClasses) {
@@ -826,13 +825,11 @@ export async function selectCellsFromTableCords(
   }
 
   const firstRowFirstColumnCell = await leftFrame.locator(
-    `table:first-of-type > tr:nth-child(${firstCords.y + 1}) > ${
-      isFirstHeader ? 'th' : 'td'
+    `table:first-of-type > tr:nth-child(${firstCords.y + 1}) > ${isFirstHeader ? 'th' : 'td'
     }:nth-child(${firstCords.x + 1})`,
   );
   const secondRowSecondCell = await leftFrame.locator(
-    `table:first-of-type > tr:nth-child(${secondCords.y + 1}) > ${
-      isSecondHeader ? 'th' : 'td'
+    `table:first-of-type > tr:nth-child(${secondCords.y + 1}) > ${isSecondHeader ? 'th' : 'td'
     }:nth-child(${secondCords.x + 1})`,
   );
 

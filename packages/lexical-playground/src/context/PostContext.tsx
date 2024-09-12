@@ -30,6 +30,14 @@ export const PostContext = ({
     // 从 url 取 id
     const id = new URLSearchParams(window.location.search).get('id')
     if (!id) {
+      setContext({
+        post: {
+          title: '',
+        } as unknown as any,
+        updatePost,
+        isSidebarOpen: false,
+        toggleSidebar,
+      })
       return
     }
 
@@ -52,9 +60,11 @@ export const PostContext = ({
 
   // 更新 post 对象的方法
   const updatePost = (updates: Partial<Post>) => {
-    setContext((current) =>
-      current ? { ...current, post: { ...current.post, ...updates } } : null,
-    )
+    setContext((current) => {
+      return current
+        ? { ...current, post: { ...current.post, ...updates } }
+        : null
+    })
   }
 
   // 更新侧边栏展开状态
