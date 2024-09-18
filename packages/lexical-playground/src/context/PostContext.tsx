@@ -6,11 +6,13 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { getBlogPost } from '../utils/ghost'
+import { getBlogPost, getPage, validateSlug } from '../utils/ghost'
+import type { Page } from '../type'
 
 type ContextShape = {
-  post: Post
-  updatePost: (updates: Partial<Post>) => void
+  post: Post | Page
+  type: 'post' | 'page'
+  updatePost: (updates: Partial<Post | Page>) => void
   // 侧边栏展开
   isSidebarOpen: boolean
   // 切换侧边栏展开状态
@@ -30,12 +32,15 @@ export const PostContext = ({
     // 从 url 取 id
     const id = new URLSearchParams(window.location.search).get('id')
     // 从 url 取 type
-    const type = new URLSearchParams(window.location.search).get('type')
+    const type = new URLSearchParams(window.location.search).get('type') as
+      | 'post'
+      | 'page'
     if (!id || !type) {
       setContext({
         post: {
           title: '',
         } as unknown as any,
+        type: type,
         updatePost,
         isSidebarOpen: false,
         toggleSidebar,
@@ -45,11 +50,13 @@ export const PostContext = ({
 
     // 通过 id 获取文章
     const getPost = async () => {
-      const postResponse = await getBlogPost(id)
+      const postResponse =
+        type === 'post' ? await getBlogPost(id) : await getPage(id)
 
       if (postResponse.success) {
         setContext({
-          post: postResponse.post,
+          post: postResponse.data,
+          type: type,
           updatePost,
           isSidebarOpen: false,
           toggleSidebar,
@@ -61,10 +68,10 @@ export const PostContext = ({
   }, [])
 
   // 更新 post 对象的方法
-  const updatePost = (updates: Partial<Post>) => {
+  const updatePost = (updates: Partial<Post | Page>) => {
     setContext((current) => {
       return current
-        ? { ...current, post: { ...current.post, ...updates } }
+        ? { ...current, post: { ...current.post, ...updates } as Post | Page }
         : null
     })
   }

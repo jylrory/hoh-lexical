@@ -2,16 +2,21 @@ import { LeftOutlined } from '@ant-design/icons'
 import { $generateHtmlFromNodes } from '@lexical/html'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { Button, message } from 'antd'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { usePostContext } from '../../context/PostContext'
 import {
   GHOST_URL,
+  createPage,
   createPost,
+  publishPage,
   publishPost,
+  unpublishPage,
   unpublishPost,
+  updatePage,
   updatePost,
 } from '../../utils/ghost'
 import './index.css'
+import type { Type } from '../../type'
 
 export default function EditorHeader(): JSX.Element {
   const [editor] = useLexicalComposerContext()
@@ -21,32 +26,40 @@ export default function EditorHeader(): JSX.Element {
   const [isSaveLoading, setIsSaveLoading] = useState(false)
   const [isPublishLoading, setIsPublishLoading] = useState(false)
 
+  // 根据 type 展示不同的列表名称
+  const listDisplayName = postContext?.type === 'post' ? 'posts' : 'pages'
+
   // 是否 publish 根据这个值展示不同的 ui，实现不同的功能
   const isPublished = postContext?.post?.status === 'published'
 
   const handleSave = () => {
+    if (!postContext) {
+      message.error('Post context not found')
+      return
+    }
+
     editor.read(async () => {
       const htmlString = $generateHtmlFromNodes(editor, null)
       // 为了让 Ghost 识别，不转换格式
       const htmlForGhost = `<!--kg-card-begin: html-->\n${htmlString}\n<!--kg-card-end: html-->`
-      const isNewPost = !postContext?.post?.id
+      const isNewPost = !postContext.post?.id
 
       setIsSaveLoading(true)
       isNewPost
-        ? await createNewPost(htmlForGhost)
-        : await updateCurrentPost(htmlForGhost)
+        ? await createNewPost(htmlForGhost, postContext.type)
+        : await updateCurrentPost(htmlForGhost, postContext.type)
 
       setIsSaveLoading(false)
     })
   }
 
-  const updateCurrentPost = async (htmlForGhost: string) => {
+  const updateCurrentPost = async (htmlForGhost: string, type: Type) => {
     if (!postContext) {
       message.error('No post found')
       return
     }
 
-    const updatedPostResponse = await updatePost({
+    const options = {
       id: postContext.post.id,
       html: htmlForGhost,
       title: postContext.post.title,
@@ -55,36 +68,43 @@ export default function EditorHeader(): JSX.Element {
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
       tags: postContext?.post.tags,
-    })
+    }
+    const updatedPostResponse =
+      type === 'post'
+        ? await updatePost(options)
+        : await updatePage(options)
 
     if (!updatedPostResponse.success) {
       return
     }
 
     postContext.updatePost({
-      updated_at: updatedPostResponse.post.updated_at,
+      updated_at: updatedPostResponse.data.updated_at,
       html: htmlForGhost,
     })
   }
 
-  const createNewPost = async (htmlForGhost: string) => {
-    const createResponse = await createPost({
+  const createNewPost = async (htmlForGhost: string, type: Type) => {
+    const options = {
       title: postContext?.post.title ?? '(untitled)',
       html: htmlForGhost,
       featureImage: postContext?.post.feature_image || undefined,
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
       tags: postContext?.post.tags,
-    })
+    }
 
-    if (!createResponse.success) {
+    const createResponse =
+      type === 'post' ? await createPost(options) : await createPage(options)
+
+    if (!createResponse.success || !createResponse.data) {
       return
     }
 
-    postContext?.updatePost(createResponse.post)
+    postContext?.updatePost(createResponse.data)
 
     const url = new URL(window.location.href)
-    url.searchParams.set('id', createResponse.post.id)
+    url.searchParams.set('id', createResponse.data.id)
     history.pushState({}, '', url)
   }
 
@@ -96,22 +116,60 @@ export default function EditorHeader(): JSX.Element {
 
     setIsPublishLoading(true)
 
+    const response = isPublished ? await unpublish() : await publish()
+
+    setIsPublishLoading(false)
+
+    if (response?.success) {
+      postContext.updatePost(response.data)
+    }
+  }
+
+  const publish = useCallback(async () => {
+    if (!postContext?.post) {
+      return
+    }
+
     const { post } = postContext
-    // 根据是否 publish 来调用不同的接口
+    const type = postContext.type
     const options = {
       id: post.id,
       updated_at: new Date(post.updated_at ?? ''),
     }
-    const response = isPublished
-      ? await unpublishPost(options)
-      : await publishPost(options)
 
-    setIsPublishLoading(false)
+    const response =
+      type === 'post' ? await publishPost(options) : await publishPage(options)
 
     if (response.success) {
-      postContext.updatePost(response.post)
+      postContext.updatePost(response.data)
     }
-  }
+
+    return response
+  }, [postContext])
+
+  const unpublish = useCallback(async () => {
+    if (!postContext?.post) {
+      return
+    }
+
+    const { post } = postContext
+    const type = postContext.type
+    const options = {
+      id: post.id,
+      updated_at: new Date(post.updated_at ?? ''),
+    }
+
+    const response =
+      type === 'post'
+        ? await unpublishPost(options)
+        : await unpublishPage(options)
+
+    if (response.success) {
+      postContext.updatePost(response.data)
+    }
+
+    return response
+  }, [postContext])
 
   /**
    * 跳转到预览链接，未发布的跳转到 preview 页面，发布的跳转到正式页面
@@ -132,16 +190,16 @@ export default function EditorHeader(): JSX.Element {
   /**
    * 跳转到 post 列表页
    */
-  const jumpToPostList = () => {
+  const jumpToList = () => {
     const baseUrl = new URL(window.location.href)
-    window.open(`${baseUrl.protocol}//${baseUrl.host}/ghost/posts`, '_self')
+    window.open(`${baseUrl.protocol}//${baseUrl.host}/ghost/${listDisplayName}`, '_self')
   }
 
-  return (
+  return postContext ? (
     <div className='post-header'>
       <div className='post-actions-container'>
-        <Button type='text' icon={<LeftOutlined />} onClick={jumpToPostList}>
-          Posts
+        <Button type='text' icon={<LeftOutlined />} onClick={jumpToList}>
+          {listDisplayName}
         </Button>
       </div>
       <div className='post-actions-container'>
@@ -167,7 +225,7 @@ export default function EditorHeader(): JSX.Element {
           className='post-actions-action-button'
           loading={isPublishLoading}
           onClick={handlePublishAndUnpublish}
-          disabled={!postContext?.post.id}
+          disabled={!postContext?.post?.id}
         >
           {isPublished ? 'Unpublish' : 'Publish'}
         </Button>
@@ -187,5 +245,7 @@ export default function EditorHeader(): JSX.Element {
         </Button>
       </div>
     </div>
+  ) : (
+    <></>
   )
 }

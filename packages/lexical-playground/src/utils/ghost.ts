@@ -1,5 +1,5 @@
 import { type Post, TSGhostAdminAPI } from '@ts-ghost/admin-api'
-import type { GetBlogPostResponse } from '../type'
+import type { GetBlogPostResponse, GetDataResponse } from '../type'
 import { message } from 'antd'
 
 export const GHOST_URL = import.meta.env.VITE_GHOST_URL || ''
@@ -92,7 +92,7 @@ export async function createPost(postData: AddPostData) {
       source: 'html',
     },
   )
-
+  console.log(response)
   if (!response.success) {
     return handleError(response.errors)
   }
@@ -100,11 +100,11 @@ export async function createPost(postData: AddPostData) {
   message.success('Saved successfully')
   return {
     success: true,
-    post: response.data,
+    data: response.data,
   }
 }
 
-export async function getBlogPost(id: string): GetBlogPostResponse {
+export async function getBlogPost(id: string) {
   const response = await api.posts
     .read({
       id,
@@ -120,7 +120,7 @@ export async function getBlogPost(id: string): GetBlogPostResponse {
 
   return {
     success: true,
-    post: response.data,
+    data: response.data,
   }
 }
 
@@ -159,7 +159,7 @@ export async function updatePost(postData: UpdatePostData) {
   message.success('Saved successfully')
   return {
     success: true,
-    post: response.data,
+    data: response.data,
   }
 }
 
@@ -179,7 +179,27 @@ export async function publishPost({
   message.success('Published successfully')
   return {
     success: true,
-    post: response.data,
+    data: response.data,
+  }
+}
+
+export async function publishPage({
+  id,
+  updated_at,
+}: {
+  id: string
+  updated_at: Date
+}) {
+  const response = await api.pages.edit(id, { updated_at, status: 'published' })
+
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  message.success('Published successfully')
+  return {
+    success: true,
+    data: response.data,
   }
 }
 
@@ -199,7 +219,27 @@ export async function unpublishPost({
   message.success('Unpublished successfully')
   return {
     success: true,
-    post: response.data,
+    data: response.data,
+  }
+}
+
+export async function unpublishPage({
+  id,
+  updated_at,
+}: {
+  id: string
+  updated_at: Date
+}) {
+  const response = await api.pages.edit(id, { updated_at, status: 'draft' })
+
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  message.success('Unpublished successfully')
+  return {
+    success: true,
+    data: response.data,
   }
 }
 
@@ -226,6 +266,131 @@ export async function deletePost(id: string) {
   }
 }
 
+export async function getPage(id: string) {
+  const response = await api.pages
+    .read({
+      id,
+    })
+    .formats({
+      html: true,
+    })
+    .fetch()
+
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  return {
+    success: true,
+    data: response.data,
+  }
+}
+
+export async function createPage(postData: AddPostData) {
+  const { title, html, featureImage, metaTitle, metaDescription, tags } =
+    postData
+
+  const response = await api.pages.add(
+    {
+      title,
+      html,
+      status: 'draft',
+      feature_image: featureImage,
+      meta_title: metaTitle || title,
+      meta_description: metaDescription,
+      tags,
+    },
+    {
+      source: 'html',
+    },
+  )
+
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  message.success('Saved successfully')
+  return {
+    success: true,
+    data: response.data,
+  }
+}
+
+export async function updatePage(postData: UpdatePostData) {
+  const {
+    id,
+    title,
+    html,
+    updated_at,
+    featureImage,
+    metaTitle,
+    metaDescription,
+    tags,
+  } = postData
+
+  const response = await api.pages.edit(
+    id,
+    {
+      title,
+      html,
+      updated_at: updated_at,
+      feature_image: featureImage,
+      meta_title: metaTitle || title,
+      meta_description: metaDescription,
+      tags,
+    },
+    {
+      source: 'html',
+    },
+  )
+
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  message.success('Saved successfully')
+  return {
+    success: true,
+    data: response.data,
+  }
+}
+
+export async function deletePage(id: string) {
+  const response = await api.pages.delete(id)
+  if (!response.success) {
+    return handleError(response.errors)
+  }
+
+  return {
+    success: true,
+  }
+}
+
+export async function validateSlug(slug: string) {
+  try {
+    const response = await fetch(`/ghost/api/admin/slugs/post/${slug}`, {
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch validate slug result')
+    }
+
+    const slugsResult = await response.json()
+    return {
+      success: true,
+      data: slugsResult.slugs[0].slug as string
+    }
+  } catch (error) {
+    handleError([
+      {
+        message: error instanceof Error ? error.message : JSON.stringify(error),
+        type: 'error',
+      },
+    ])
+  }
+}
+
 function handleError(
   errors: {
     message: string
@@ -234,12 +399,14 @@ function handleError(
   }[],
 ): {
   success: false
+  data: null
   errorMessage: string
 } {
   const errorMessage = errors.map((error) => error.message).join(', ')
   message.error(errorMessage)
   return {
     success: false,
+    data: null,
     errorMessage,
   }
 }
