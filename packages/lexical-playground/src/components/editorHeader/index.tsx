@@ -54,6 +54,7 @@ export default function EditorHeader(): JSX.Element {
       featureImage: postContext?.post.feature_image || undefined,
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
+      tags: postContext?.post.tags,
     })
 
     if (!updatedPostResponse.success) {
@@ -73,6 +74,7 @@ export default function EditorHeader(): JSX.Element {
       featureImage: postContext?.post.feature_image || undefined,
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
+      tags: postContext?.post.tags,
     })
 
     if (!createResponse.success) {
@@ -131,7 +133,8 @@ export default function EditorHeader(): JSX.Element {
    * 跳转到 post 列表页
    */
   const jumpToPostList = () => {
-    window.open(`${GHOST_URL}/ghost/posts`, '_self')
+    const baseUrl = new URL(window.location.href)
+    window.open(`${baseUrl.protocol}//${baseUrl.host}/ghost/posts`, '_self')
   }
 
   return (

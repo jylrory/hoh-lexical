@@ -29,7 +29,9 @@ export const PostContext = ({
   useEffect(() => {
     // 从 url 取 id
     const id = new URLSearchParams(window.location.search).get('id')
-    if (!id) {
+    // 从 url 取 type
+    const type = new URLSearchParams(window.location.search).get('type')
+    if (!id || !type) {
       setContext({
         post: {
           title: '',

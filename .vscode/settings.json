@@ -21,5 +21,6 @@
     "Excalidraw",
     "signin",
     "Unpublish"
-  ]
+  ],
+  "workbench.editor.wrapTabs": true
 }

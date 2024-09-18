@@ -1,21 +1,32 @@
-.sidebar-post-data-title {
+.sider-bar {
+  position: relative;
+  height: 100%;
+}
+
+.sider-bar .sidebar-post-data-title {
   display: flex;
-  font-weight: 500;
+  font-weight: bold;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.sidebar-post-data-title .prefix-icon {
+.sider-bar .sidebar-post-data-title .prefix-icon {
   width: 16px;
   height: 16px;
   margin-right: 8px;
 }
 
-.sidebar-post-data-sub-container {
+.sider-bar .sidebar-post-data-sub-container {
   align-items: center;
   margin-bottom: 12px;
 }
 
-.sidebar-post-data-sub-container .sidebar-post-data-subtitle {
+.sider-bar .sidebar-post-data-sub-container .sidebar-post-data-subtitle {
   margin-bottom: 8px;
+}
+
+.sider-bar .sidebar-post-data-sub-container.delete-button-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
