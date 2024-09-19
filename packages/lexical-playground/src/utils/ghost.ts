@@ -17,6 +17,7 @@ type UpdatePostData = {
   metaTitle?: string
   metaDescription?: string
   tags?: Post['tags']
+  slug?: Post['slug']
 }
 
 type AddPostData = Omit<UpdatePostData, 'id' | 'updated_at'> & {
@@ -77,12 +78,11 @@ export async function auth() {
 }
 
 export async function createPost(postData: AddPostData) {
-  const { title, html, featureImage, metaTitle, metaDescription } = postData
+  const { title, featureImage, metaTitle, metaDescription } = postData
 
   const response = await api.posts.add(
     {
-      title,
-      html,
+      ...postData,
       status: 'draft',
       feature_image: featureImage,
       meta_title: metaTitle || title,
@@ -92,7 +92,7 @@ export async function createPost(postData: AddPostData) {
       source: 'html',
     },
   )
-  console.log(response)
+
   if (!response.success) {
     return handleError(response.errors)
   }
@@ -125,27 +125,15 @@ export async function getBlogPost(id: string) {
 }
 
 export async function updatePost(postData: UpdatePostData) {
-  const {
-    id,
-    title,
-    html,
-    updated_at,
-    featureImage,
-    metaTitle,
-    metaDescription,
-    tags,
-  } = postData
+  const { id, title, featureImage, metaTitle, metaDescription } = postData
 
   const response = await api.posts.edit(
     id,
     {
-      title,
-      html,
-      updated_at: updated_at,
+      ...postData,
       feature_image: featureImage,
       meta_title: metaTitle || title,
       meta_description: metaDescription,
-      tags,
     },
     {
       source: 'html',
@@ -287,18 +275,15 @@ export async function getPage(id: string) {
 }
 
 export async function createPage(postData: AddPostData) {
-  const { title, html, featureImage, metaTitle, metaDescription, tags } =
-    postData
+  const { title, featureImage, metaTitle, metaDescription } = postData
 
   const response = await api.pages.add(
     {
-      title,
-      html,
+      ...postData,
       status: 'draft',
       feature_image: featureImage,
       meta_title: metaTitle || title,
       meta_description: metaDescription,
-      tags,
     },
     {
       source: 'html',
@@ -317,27 +302,15 @@ export async function createPage(postData: AddPostData) {
 }
 
 export async function updatePage(postData: UpdatePostData) {
-  const {
-    id,
-    title,
-    html,
-    updated_at,
-    featureImage,
-    metaTitle,
-    metaDescription,
-    tags,
-  } = postData
+  const { id, title, featureImage, metaTitle, metaDescription } = postData
 
   const response = await api.pages.edit(
     id,
     {
-      title,
-      html,
-      updated_at: updated_at,
+      ...postData,
       feature_image: featureImage,
       meta_title: metaTitle || title,
       meta_description: metaDescription,
-      tags,
     },
     {
       source: 'html',
@@ -379,7 +352,7 @@ export async function validateSlug(slug: string) {
     const slugsResult = await response.json()
     return {
       success: true,
-      data: slugsResult.slugs[0].slug as string
+      data: slugsResult.slugs[0].slug as string,
     }
   } catch (error) {
     handleError([

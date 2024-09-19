@@ -1,6 +1,6 @@
 import './index.css'
 import { Button, Form, Input, Select, type SelectProps } from 'antd'
-import { TagsOutlined } from '@ant-design/icons'
+import { TagsOutlined, LinkOutlined } from '@ant-design/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { usePostContext } from '../../context/PostContext'
 import { getTags } from '../../utils/ghost'
@@ -37,6 +37,15 @@ export default function SideBar(): JSX.Element {
 
     setPost({ ...postContext.post })
   }, [postContext])
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!postContext?.post) {
+      return
+    }
+
+    postContext.post.slug = e.target.value
+    setPost({ ...postContext.post })
+  }
 
   const handleMetaTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!postContext?.post) {
@@ -86,6 +95,20 @@ export default function SideBar(): JSX.Element {
 
   return (
     <div className='sider-bar'>
+      {/* Post URL */}
+      <div>
+        <div className='sidebar-post-data-title'>
+          <LinkOutlined className='prefix-icon' />
+          <div>Post URL</div>
+        </div>
+        <div className='sidebar-post-data-sub-container'>
+          <Input
+            placeholder='Leave empty to generate automatically'
+            value={post?.slug ?? ''}
+            onChange={handleSlugChange}
+          />
+        </div>
+      </div>
       {/* meta data */}
       <div>
         <div className='sidebar-post-data-title'>

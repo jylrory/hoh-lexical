@@ -68,17 +68,18 @@ export default function EditorHeader(): JSX.Element {
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
       tags: postContext?.post.tags,
+      slug: postContext?.post.slug,
     }
+
     const updatedPostResponse =
-      type === 'post'
-        ? await updatePost(options)
-        : await updatePage(options)
+      type === 'post' ? await updatePost(options) : await updatePage(options)
 
     if (!updatedPostResponse.success) {
       return
     }
 
     postContext.updatePost({
+      ...updatedPostResponse.data,
       updated_at: updatedPostResponse.data.updated_at,
       html: htmlForGhost,
     })
@@ -92,6 +93,7 @@ export default function EditorHeader(): JSX.Element {
       metaTitle: postContext?.post.meta_title || undefined,
       metaDescription: postContext?.post.meta_description || undefined,
       tags: postContext?.post.tags,
+      slug: postContext?.post.slug,
     }
 
     const createResponse =
@@ -192,7 +194,10 @@ export default function EditorHeader(): JSX.Element {
    */
   const jumpToList = () => {
     const baseUrl = new URL(window.location.href)
-    window.open(`${baseUrl.protocol}//${baseUrl.host}/ghost/${listDisplayName}`, '_self')
+    window.open(
+      `${baseUrl.protocol}//${baseUrl.host}/ghost/${listDisplayName}`,
+      '_self',
+    )
   }
 
   return postContext ? (
