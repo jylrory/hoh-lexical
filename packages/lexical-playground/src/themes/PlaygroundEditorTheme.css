@@ -119,7 +119,7 @@
 .hoh-theme__table {
   border-collapse: collapse;
   border-spacing: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: scroll;
   table-layout: fixed;
   width: max-content;

@@ -44,24 +44,7 @@ export async function getBlogPosts() {
   if (!response.success) {
     throw new Error(response.errors.join(', '))
   }
-  // Response data is typed correctly with only the requested fields
-  // {
-  //   title: string;
-  //   slug: string;
-  //   id: string;
-  //   html: string;
-  //   plaintext: string;
-  // }[]
   return response.data
-}
-
-export async function getUsers() {
-  const response = await api.users.browse().fetch()
-  if (!response.success) {
-    throw new Error(response.errors.join(', '))
-  }
-  const user = await api.users.read({ id: response.data[0].id }).fetch()
-  // console.log(user)
 }
 
 export async function auth() {
