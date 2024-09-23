@@ -12,43 +12,37 @@ import {
   createCommand,
 } from 'lexical'
 import { useEffect, useMemo, useState } from 'react'
-import {
-  $createButtonNode,
-  ButtonNode,
-  type ButtonPayload,
-} from '../../nodes/ButtonNode'
+import { $createBannerNode, BannerNode, type BannerPayload } from '../../nodes/BannerNode'
 import Button from '../../ui/Button'
-import { toHex } from '../../ui/ColorPicker'
 import { DialogActions } from '../../ui/Dialog'
-import DropdownColorPicker from '../../ui/DropdownColorPicker'
 import TextInput from '../../ui/TextInput'
 import './index.css'
 
-export type InsertButtonPayload = Readonly<ButtonPayload>
+export type InsertBannerPayload = Readonly<BannerPayload>
 
-export const INSERT_BUTTON_COMMAND: LexicalCommand<InsertButtonPayload> =
-  createCommand('INSERT_BUTTON_COMMAND')
+export const INSERT_BANNER_COMMAND: LexicalCommand<InsertBannerPayload> =
+  createCommand('INSERT_BANNER_COMMAND')
 
-export function InsertButtonDialog({
+export function InsertBannerDialog({
   activeEditor,
   onClose,
 }: {
   activeEditor: LexicalEditor
   onClose: () => void
 }): JSX.Element {
-  const onConfirm = (payload: InsertButtonPayload) => {
-    activeEditor.dispatchCommand(INSERT_BUTTON_COMMAND, payload)
+  const onConfirm = (payload: InsertBannerPayload) => {
+    activeEditor.dispatchCommand(INSERT_BANNER_COMMAND, payload)
     onClose()
   }
 
   return (
     <>
-      <ButtonForm onConfirm={onConfirm} />
+      <BannerForm onConfirm={onConfirm} />
     </>
   )
 }
 
-export function UpdateButtonDialog({
+export function UpdateBannerDialog({
   nodeKey,
   initData,
   activeEditor,
@@ -57,13 +51,13 @@ export function UpdateButtonDialog({
   nodeKey: NodeKey
   activeEditor: LexicalEditor
   onClose: () => void
-  initData: Partial<InsertButtonPayload>
+  initData: Partial<InsertBannerPayload>
 }) {
-  const onConfirm = (payload: InsertButtonPayload) => {
+  const onConfirm = (payload: InsertBannerPayload) => {
     activeEditor.update(() => {
       const node = $getNodeByKey(nodeKey)
-      if (node instanceof ButtonNode) {
-        const newNode = $createButtonNode({ ...payload })
+      if (node instanceof BannerNode) {
+        const newNode = $createBannerNode({ ...payload })
         node.replace(newNode)
       }
     })
@@ -72,38 +66,32 @@ export function UpdateButtonDialog({
 
   return (
     <>
-      <ButtonForm initData={initData} onConfirm={onConfirm} />
+      <BannerForm initData={initData} onConfirm={onConfirm} />
     </>
   )
 }
 
-function ButtonForm({
+function BannerForm({
   initData,
   onConfirm,
 }: {
-  onConfirm: (payload: InsertButtonPayload) => void
-  initData?: Partial<InsertButtonPayload>
+  onConfirm: (payload: InsertBannerPayload) => void
+  initData?: Partial<InsertBannerPayload>
 }) {
   const [link, setLink] = useState(initData?.link || '')
-  const [text, setText] = useState(initData?.text || '')
-  const [backgroundColor, setBackgroundColor] = useState(
-    toHex(initData?.backgroundColor || '#3264ff'),
-  )
-  const [textColor, setTextColor] = useState(
-    toHex(initData?.textColor || '#ffffff'),
-  )
+  const [image, setImage] = useState(initData?.image || '')
+  const [imageALT, setImageALT] = useState(initData?.imageALT || '')
   const [noFollow, setNoFollow] = useState(initData?.noFollow ?? false)
   const [isNewTab, setIsNewTab] = useState(initData?.isNewTab ?? true)
-  const [fontSize, setFontSize] = useState(initData?.fontSize || '16')
-  const [width, setWidth] = useState(initData?.width ?? 'auto')
+  const [width, setWidth] = useState(initData?.width ?? '100%')
   const [height, setHeight] = useState(initData?.height ?? 'auto')
   const [borderRadius, setBorderRadius] = useState(
-    initData?.borderRadius ?? '8px',
+    initData?.borderRadius ?? '0px',
   )
 
   const isConfirmDisabled = useMemo(() => {
-    return link === '' || text === ''
-  }, [link, text])
+    return image === ''
+  }, [image])
 
   return (
     <>
@@ -117,24 +105,24 @@ function ButtonForm({
       </div>
       <div className='button-form row'>
         <TextInput
-          label='Link Text'
-          placeholder='Text on the button'
-          value={text}
-          onChange={setText}
+          label='Image URL'
+          placeholder='i.e. https://trip.com'
+          value={image}
+          onChange={setImage}
         />
       </div>
       <div className='button-form row'>
         <TextInput
-          label='Font Size'
-          placeholder='i.e. 16px'
-          value={fontSize}
-          onChange={setFontSize}
+          label='Image ALT'
+          placeholder='Image ALT'
+          value={imageALT}
+          onChange={setImageALT}
         />
       </div>
       <div className='button-form row'>
         <TextInput
           label='Width'
-          placeholder='i.e. 40px'
+          placeholder='i.e. 100%'
           value={width}
           onChange={setWidth}
         />
@@ -153,38 +141,6 @@ function ButtonForm({
           placeholder='i.e. 8px'
           value={borderRadius}
           onChange={setBorderRadius}
-        />
-      </div>
-      <div className='button-form row'>
-        <TextInput
-          label='BG Color'
-          placeholder='i.e #3264ff'
-          value={backgroundColor}
-          onChange={setBackgroundColor}
-        />
-        <DropdownColorPicker
-          buttonClassName='toolbar-item color-picker'
-          buttonAriaLabel='Formatting button background color'
-          buttonIconClassName='icon font-color'
-          color={backgroundColor}
-          onChange={setBackgroundColor}
-          title='button background color'
-        />
-      </div>
-      <div className='button-form row'>
-        <TextInput
-          label='Text Color'
-          placeholder='i.e #3264ff'
-          value={textColor}
-          onChange={setTextColor}
-        />
-        <DropdownColorPicker
-          buttonClassName='toolbar-item color-picker'
-          buttonAriaLabel='Formatting button background color'
-          buttonIconClassName='icon font-color'
-          color={textColor}
-          onChange={setTextColor}
-          title='button background color'
         />
       </div>
       <div className='button-form row'>
@@ -225,13 +181,11 @@ function ButtonForm({
           onClick={() => {
             onConfirm({
               link,
-              text,
-              backgroundColor,
-              textColor,
+              image,
+              imageALT,
               noFollow,
               isNewTab,
-              fontSize: fontSize || '16px',
-              width: width || 'auto',
+              width: width || '100%',
               height: height || 'auto',
               borderRadius,
             })
@@ -245,25 +199,25 @@ function ButtonForm({
 }
 
 // 定义插件组件
-function ButtonPlugin() {
+function BannerPlugin() {
   const [editor] = useLexicalComposerContext()
 
   useEffect(() => {
-    if (!editor.hasNodes([ButtonNode])) {
+    if (!editor.hasNodes([BannerNode])) {
       throw new Error(
-        'ButtonPlugin: ButtonNode is not registered in the editor',
+        'BannerPlugin: BannerNode is not registered in the editor',
       )
     }
 
     // 注册插入按钮的命令
     return mergeRegister(
-      editor.registerCommand<InsertButtonPayload>(
-        INSERT_BUTTON_COMMAND,
+      editor.registerCommand<InsertBannerPayload>(
+        INSERT_BANNER_COMMAND,
         (payload) => {
-          const buttonNode = $createButtonNode(payload)
-          $insertNodes([buttonNode])
-          if ($isRootOrShadowRoot(buttonNode.getParentOrThrow())) {
-            $wrapNodeInElement(buttonNode, $createParagraphNode).selectEnd()
+          const bannerNode = $createBannerNode(payload)
+          $insertNodes([bannerNode])
+          if ($isRootOrShadowRoot(bannerNode.getParentOrThrow())) {
+            $wrapNodeInElement(bannerNode, $createParagraphNode).selectEnd()
           }
 
           return true
@@ -276,4 +230,4 @@ function ButtonPlugin() {
   return null
 }
 
-export default ButtonPlugin
+export default BannerPlugin

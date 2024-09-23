@@ -76,6 +76,7 @@ import YouTubePlugin from './plugins/YouTubePlugin'
 import ContentEditable from './ui/ContentEditable'
 import { auth } from './utils/ghost'
 import ButtonPlugin from './plugins/ButtonPlugin'
+import BannerPlugin from './plugins/BannerPlugin'
 
 const skipCollaborationInit =
   // @ts-expect-error
@@ -247,6 +248,7 @@ export default function Editor(): JSX.Element {
                     <PageBreakPlugin />
                     <LayoutPlugin />
                     <ButtonPlugin />
+                    <BannerPlugin />
                     {floatingAnchorElem && !isSmallWidthViewport && (
                       <>
                         <DraggableBlockPlugin anchorElem={floatingAnchorElem} />

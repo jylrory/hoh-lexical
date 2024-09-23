@@ -449,6 +449,14 @@ i.horizontal-rule {
   -webkit-mask-size: contain;
 }
 
+i.banner {
+  background-image: url(images/icons/banner.svg);
+}
+
+i.button {
+  background-image: url(images/icons/mtbutton.svg);
+}
+
 i.image {
   background-image: url(images/icons/file-image.svg);
 }

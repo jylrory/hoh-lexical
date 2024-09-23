@@ -98,6 +98,7 @@ import { InsertPollDialog } from '../PollPlugin'
 import { InsertTableDialog } from '../TablePlugin'
 import FontSize from './fontSize'
 import { InsertButtonDialog } from '../ButtonPlugin'
+import { InsertBannerDialog } from '../BannerPlugin'
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -1102,6 +1103,34 @@ export default function ToolbarPlugin({
               >
                 <DropDownItem
                   onClick={() => {
+                    showModal('Insert Button', (onClose) => (
+                      <InsertButtonDialog
+                        activeEditor={activeEditor}
+                        onClose={onClose}
+                      />
+                    ))
+                  }}
+                  className='item'
+                >
+                  <i className='icon button' />
+                  <span className='text'>Button</span>
+                </DropDownItem>
+                <DropDownItem
+                  onClick={() => {
+                    showModal('Insert Banner', (onClose) => (
+                      <InsertBannerDialog
+                        activeEditor={activeEditor}
+                        onClose={onClose}
+                      />
+                    ))
+                  }}
+                  className='item'
+                >
+                  <i className='icon banner' />
+                  <span className='text'>Banner</span>
+                </DropDownItem>
+                <DropDownItem
+                  onClick={() => {
                     activeEditor.dispatchCommand(
                       INSERT_HORIZONTAL_RULE_COMMAND,
                       undefined,
@@ -1121,20 +1150,6 @@ export default function ToolbarPlugin({
                   <i className='icon page-break' />
                   <span className='text'>Page Break</span>
                 </DropDownItem> */}
-                <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Button', (onClose) => (
-                      <InsertButtonDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ))
-                  }}
-                  className='item'
-                >
-                  <i className='icon image' />
-                  <span className='text'>Button</span>
-                </DropDownItem>
                 <DropDownItem
                   onClick={() => {
                     showModal('Insert Image', (onClose) => (

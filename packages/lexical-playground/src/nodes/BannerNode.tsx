@@ -29,48 +29,43 @@ import useModal from '../hooks/useModal'
 import {
   UpdateButtonDialog,
 } from '../plugins/ButtonPlugin'
+import { UpdateBannerDialog } from '../plugins/BannerPlugin'
 import { convertStyleNumberToString } from '../utils/styleConvert'
 
-export interface ButtonPayload {
+export interface BannerPayload {
   link: string
-  text: string
-  backgroundColor: string
-  textColor: string
-  fontSize?: string
+  image: string
+  imageALT: string
+  isNewTab: boolean
+  noFollow: boolean
   width?: string
   height?: string
   borderRadius?: string
-  isNewTab?: boolean
-  noFollow?: boolean
   format?: ElementFormatType
   key?: NodeKey
 }
 
-export type SerializedButtonNode = Spread<
+export type SerializedBannerNode = Spread<
   {
     link: string
-    text: string
-    backgroundColor: string
-    textColor: string
-    fontSize?: string
+    image: string
+    imageALT: string
+    isNewTab: boolean
+    noFollow: boolean
     width?: string
     height?: string
     borderRadius?: string
-    isNewTab?: boolean
-    noFollow?: boolean
   },
   SerializedDecoratorBlockNode
 >
 
 // 定义按钮的 DecoratorNode
-export class ButtonNode extends DecoratorBlockNode {
+export class BannerNode extends DecoratorBlockNode {
   __link: string
-  __noFollow: boolean
-  __text: string
-  __backgroundColor: string
-  __textColor: string
+  __image: string
+  __imageALT: string
   __isNewTab: boolean
-  __fontSize: string
+  __noFollow: boolean
   __width: string
   __height: string
   __borderRadius: string
@@ -79,25 +74,23 @@ export class ButtonNode extends DecoratorBlockNode {
     return 'button'
   }
 
-  static clone(node: ButtonNode): ButtonNode {
-    return new ButtonNode(
+  static clone(node: BannerNode): BannerNode {
+    return new BannerNode(
       node.__link,
-      node.__text,
-      node.__backgroundColor,
-      node.__textColor,
-      node.__fontSize,
+      node.__image,
+      node.__imageALT,
+      node.__isNewTab,
+      node.__noFollow,
       node.__width,
       node.__height,
       node.__borderRadius,
-      node.__isNewTab,
-      node.__noFollow,
       node.__format,
       node.__key,
     )
   }
 
-  static importJSON(serializedNode: SerializedButtonNode): ButtonNode {
-    const node = $createButtonNode({ ...serializedNode })
+  static importJSON(serializedNode: SerializedBannerNode): BannerNode {
+    const node = $createBannerNode({ ...serializedNode })
     node.setFormat(serializedNode.format)
     return node
   }
@@ -107,10 +100,10 @@ export class ButtonNode extends DecoratorBlockNode {
       a: (node: Node) => {
         if (
           node instanceof HTMLAnchorElement &&
-          node.getAttribute('data-type') === 'button'
+          node.getAttribute('data-type') === 'banner'
         ) {
           return {
-            conversion: () => $convertButtonElement(node),
+            conversion: () => $convertBannerElement(node),
             priority: 2,
           }
         }
@@ -120,28 +113,32 @@ export class ButtonNode extends DecoratorBlockNode {
     }
   }
 
+  // __link: string
+  // __image: string
+  // __isNewTab: boolean
+  // __noFollow: boolean
+  // __width: string
+  // __height: string
+  // __borderRadius: string
+
   constructor(
     link: string,
-    text: string,
-    backgroundColor: string,
-    textColor: string,
-    fontSize = '16px',
-    width = 'auto',
-    height = '40px',
-    borderRadius = '8px',
-    isNewTab = true,
-    noFollow = false,
+    image: string,
+    imageALT: string,
+    isNewTab: boolean,
+    noFollow: boolean,
+    width = '100%',
+    height = 'auto',
+    borderRadius = '0px',
     format?: ElementFormatType,
     key?: NodeKey,
   ) {
     super(format, key)
     this.__link = link
-    this.__text = text
-    this.__backgroundColor = backgroundColor
+    this.__image = image
+    this.__imageALT = imageALT
     this.__noFollow = noFollow
-    this.__textColor = textColor
     this.__isNewTab = isNewTab
-    this.__fontSize = fontSize
     this.__width = width
     this.__height = height
     this.__borderRadius = borderRadius
@@ -152,39 +149,44 @@ export class ButtonNode extends DecoratorBlockNode {
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement('a')
+    const anchorElement = document.createElement('a')
 
-    element.classList.add('hoh-theme__button')
-    element.setAttribute('href', this.__link)
+    anchorElement.classList.add('hoh-theme__banner')
+    anchorElement.setAttribute('href', this.__link)
     if (this.__noFollow) {
-      element.setAttribute('rel', 'nofollow')
+      anchorElement.setAttribute('rel', 'nofollow')
     }
-    element.setAttribute('target', this.__isNewTab ? '_blank' : '_self')
-    element.setAttribute('data-type', 'button')
-    element.innerText = this.__text
-    element.style.backgroundColor = this.__backgroundColor
-    element.style.color = this.__textColor
-    element.style.fontSize = convertStyleNumberToString(this.__fontSize)
-    element.style.width = convertStyleNumberToString(this.__width)
-    element.style.height = convertStyleNumberToString(this.__height)
-    element.style.lineHeight = convertStyleNumberToString(this.__height)
-    element.style.borderRadius = convertStyleNumberToString(this.__borderRadius)
-    element.style.textDecoration = 'none'
+    anchorElement.setAttribute('target', this.__isNewTab ? '_blank' : '_self')
+    anchorElement.setAttribute('data-type', 'banner')
+    anchorElement.style.width = convertStyleNumberToString(this.__width)
+    anchorElement.style.height = convertStyleNumberToString(this.__height)
+    anchorElement.style.borderRadius = convertStyleNumberToString(
+      this.__borderRadius,
+    )
+    anchorElement.style.overflow = 'hidden'
 
-    return { element }
+    const imageElement = document.createElement('img')
+    imageElement.setAttribute('src', this.__image)
+    imageElement.setAttribute('alt', this.__imageALT)
+    imageElement.style.width = '100%'
+    imageElement.style.height = '100%'
+    imageElement.style.objectFit = 'cover'
+    console.log(imageElement)
+
+    anchorElement.appendChild(imageElement)
+
+    return { element: anchorElement }
   }
 
-  exportJSON(): SerializedButtonNode {
+  exportJSON(): SerializedBannerNode {
     return {
       ...super.exportJSON(),
-      type: ButtonNode.getType(),
+      type: BannerNode.getType(),
       link: this.__link,
-      text: this.__text,
-      backgroundColor: this.__backgroundColor,
-      textColor: this.__textColor,
+      image: this.__image,
+      imageALT: this.__imageALT,
       noFollow: this.__noFollow,
       isNewTab: this.__isNewTab,
-      fontSize: this.__fontSize,
       width: this.__width,
       height: this.__height,
       borderRadius: this.__borderRadius,
@@ -198,17 +200,15 @@ export class ButtonNode extends DecoratorBlockNode {
     }
 
     return (
-      <ButtonComponent
+      <BannerComponent
         className={className}
         nodeKey={this.__key}
         link={this.__link}
-        text={this.__text}
-        backgroundColor={this.__backgroundColor}
-        textColor={this.__textColor}
+        image={this.__image}
+        imageALT={this.__imageALT}
         format={this.__format}
         noFollow={this.__noFollow}
         isNewTab={this.__isNewTab}
-        fontSize={this.__fontSize}
         width={this.__width}
         height={this.__height}
         borderRadius={this.__borderRadius}
@@ -218,21 +218,19 @@ export class ButtonNode extends DecoratorBlockNode {
 }
 
 // 定义按钮的 React 组件
-function ButtonComponent({
+function BannerComponent({
   nodeKey,
   link,
-  text,
-  backgroundColor,
-  textColor,
+  image,
+  imageALT,
   format,
   className,
   noFollow,
   isNewTab,
-  fontSize,
   width,
   height,
   borderRadius,
-}: Omit<ButtonPayload, 'key'> & {
+}: Omit<BannerPayload, 'key'> & {
   nodeKey: NodeKey
   format: ElementFormatType | null
   className: Readonly<{
@@ -249,7 +247,6 @@ function ButtonComponent({
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const convertedFontSize = fontSize && convertStyleNumberToString(fontSize)
   const convertedWidth = width ? convertStyleNumberToString(width) : 'auto'
   const convertedHeight = height ? convertStyleNumberToString(height) : 'auto'
   const convertedBorderRadius =
@@ -284,15 +281,13 @@ function ButtonComponent({
 
   const handleEditClick = () => {
     showModal('Edit Button', (onClose) => (
-      <UpdateButtonDialog
+      <UpdateBannerDialog
         initData={{
           link,
-          text,
-          backgroundColor,
-          textColor,
+          image,
+          imageALT,
           noFollow,
           isNewTab,
-          fontSize: convertedFontSize,
           width: convertedWidth,
           height: convertedHeight,
           borderRadius: convertedBorderRadius,
@@ -350,11 +345,7 @@ function ButtonComponent({
         <a
           href={link}
           style={{
-            backgroundColor,
-            color: textColor,
             borderRadius: convertedBorderRadius,
-            textDecoration: 'none',
-            fontSize: convertedFontSize,
             width: convertedWidth,
             height: convertedHeight,
             lineHeight: convertedHeight,
@@ -367,7 +358,11 @@ function ButtonComponent({
             }
           }}
         >
-          {text}
+          <img src={image} alt={imageALT} style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }} />
         </a>
         {isSelected && (
           <span
@@ -388,12 +383,10 @@ function ButtonComponent({
   )
 }
 
-export function $createButtonNode({
+export function $createBannerNode({
   link,
-  text,
-  backgroundColor,
-  textColor,
-  fontSize,
+  image,
+  imageALT,
   width,
   height,
   borderRadius,
@@ -401,46 +394,41 @@ export function $createButtonNode({
   noFollow,
   format,
   key,
-}: ButtonPayload): ButtonNode {
+}: BannerPayload): BannerNode {
   return $applyNodeReplacement(
-    new ButtonNode(
+    new BannerNode(
       link,
-      text,
-      backgroundColor,
-      textColor,
-      fontSize,
+      image,
+      imageALT,
+      isNewTab,
+      noFollow,
       width,
       height,
       borderRadius,
-      isNewTab,
-      noFollow,
       format,
       key,
     ),
   )
 }
 
-function $convertButtonElement(domNode: Node): null | DOMConversionOutput {
+function $convertBannerElement(domNode: Node): null | DOMConversionOutput {
   const button = domNode as HTMLAnchorElement
+  const imageElement = button.querySelector('img')
+  const image = imageElement?.getAttribute('src') ?? ''
+  const imageALT = imageElement?.getAttribute('alt') ?? ''
   const link = button.getAttribute('href') ?? ''
-  const text = button.innerText
-  const backgroundColor = button.style.backgroundColor
-  const textColor = button.style.color
   const noFollow = button.getAttribute('rel') === 'nofollow'
   const isNewTab = button.getAttribute('target') === '_blank'
-  const fontSize = button.style.fontSize
   const width = button.style.width
   const height = button.style.height
   const borderRadius = button.style.borderRadius
 
-  const node = $createButtonNode({
+  const node = $createBannerNode({
     link,
-    text,
-    backgroundColor,
-    textColor,
+    image,
+    imageALT,
     noFollow,
     isNewTab,
-    fontSize,
     width,
     height,
     borderRadius,
