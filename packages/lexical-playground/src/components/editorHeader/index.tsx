@@ -69,6 +69,7 @@ export default function EditorHeader(): JSX.Element {
       metaDescription: postContext?.post.meta_description || undefined,
       tags: postContext?.post.tags,
       slug: postContext?.post.slug,
+      featured: postContext?.post.featured,
     }
 
     const updatedPostResponse =

@@ -18,6 +18,7 @@ type UpdatePostData = {
   metaDescription?: string
   tags?: Post['tags']
   slug?: Post['slug']
+  featured?: Post['featured']
 }
 
 type AddPostData = Omit<UpdatePostData, 'id' | 'updated_at'> & {

@@ -6,9 +6,10 @@ import {
   message,
   Modal,
   Select,
+  Switch,
   type SelectProps,
 } from 'antd'
-import { TagsOutlined, LinkOutlined } from '@ant-design/icons'
+import { TagsOutlined, LinkOutlined, StarFilled } from '@ant-design/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { usePostContext } from '../../context/PostContext'
 import { deletePage, deletePost, getTags } from '../../utils/ghost'
@@ -106,6 +107,14 @@ export default function SideBar(): JSX.Element {
     postContext.post.tags = tags
   }
 
+  const onFeatureChange = (checked: boolean) => {
+    if (!postContext?.post) {
+      return
+    }
+
+    postContext.post.featured = checked
+  }
+
   const handleOk = async () => {
     if (!postContext?.post) {
       message.error('No post found')
@@ -201,6 +210,20 @@ export default function SideBar(): JSX.Element {
             />
           </div>
         </div>
+        {/* Feature */}
+        <div className='inline-form'>
+          <div className='sidebar-post-data-title'>
+            <StarFilled className='prefix-icon' />
+            <div>Feature this post</div>
+          </div>
+          <div className='sidebar-post-data-sub-container'>
+            <Switch
+              defaultValue={post?.featured ?? false}
+              onChange={onFeatureChange}
+            />
+          </div>
+        </div>
+
         {/* delete */}
         <div className='sidebar-post-data-sub-container delete-button-container'>
           <Button
