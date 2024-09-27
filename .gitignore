@@ -20,6 +20,8 @@ test-results
 playwright-report
 /SOURCE_CODE_REVIEW.md
 
+!packages/lexical-playground/build
+
 npm-debug.log*
 
 .vscode/*
