@@ -25,6 +25,8 @@ import {Suspense} from 'react';
 
 import ImageComponent from './ImageComponent'
 
+import './ImageNode.css'
+
 // const ImageComponent = React.lazy(() => import('./ImageComponent'));
 
 export interface ImagePayload {

@@ -13,8 +13,6 @@ import type {
   NodeKey,
 } from 'lexical';
 
-import './ImageComponent.css';
-
 import {HashtagNode} from '@lexical/hashtag';
 import {LinkNode} from '@lexical/link';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
