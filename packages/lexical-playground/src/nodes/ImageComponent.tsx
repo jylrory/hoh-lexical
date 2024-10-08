@@ -13,7 +13,7 @@ import type {
   NodeKey,
 } from 'lexical';
 
-import './ImageNode.css';
+import './ImageComponent.css';
 
 import {HashtagNode} from '@lexical/hashtag';
 import {LinkNode} from '@lexical/link';

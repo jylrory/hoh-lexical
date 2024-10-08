@@ -1190,7 +1190,7 @@ export default function ToolbarPlugin({
                   <i className='icon gif' />
                   <span className='text'>GIF</span>
                 </DropDownItem> */}
-                <DropDownItem
+                {/* <DropDownItem
                   onClick={() => {
                     activeEditor.dispatchCommand(
                       INSERT_EXCALIDRAW_COMMAND,
@@ -1201,7 +1201,7 @@ export default function ToolbarPlugin({
                 >
                   <i className='icon diagram-2' />
                   <span className='text'>Excalidraw</span>
-                </DropDownItem>
+                </DropDownItem> */}
                 <DropDownItem
                   onClick={() => {
                     showModal('Insert Table', (onClose) => (
