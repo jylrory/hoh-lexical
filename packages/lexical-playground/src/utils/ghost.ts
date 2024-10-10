@@ -2,8 +2,19 @@ import { type Post, TSGhostAdminAPI } from '@ts-ghost/admin-api'
 import type { GetBlogPostResponse, GetDataResponse } from '../type'
 import { message } from 'antd'
 
-export const GHOST_URL = import.meta.env.VITE_GHOST_URL || 'https://8.211.156.79'
-const VITE_GHOST_ADMIN_API_KEY = import.meta.env.VITE_GHOST_ADMIN_API_KEY || '66f65f41adcdc40058617119:2eb83c072aeb518cc55d9c99174e91711990b4326c03b36d39f990086701f04f'
+interface ImportMetaEnv {
+  readonly VITE_GHOST_URL: string
+  readonly VITE_GHOST_ADMIN_API_KEY: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
+const isDev = import.meta.env.DEV
+
+export const GHOST_URL = isDev ? import.meta.env.VITE_GHOST_URL : 'https://8.211.156.79'
+const VITE_GHOST_ADMIN_API_KEY = isDev ? import.meta.env.VITE_GHOST_ADMIN_API_KEY : '66f65f41adcdc40058617119:2eb83c072aeb518cc55d9c99174e91711990b4326c03b36d39f990086701f04f'
 
 const api = new TSGhostAdminAPI(GHOST_URL, VITE_GHOST_ADMIN_API_KEY, 'v5.91.0')
 

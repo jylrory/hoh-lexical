@@ -71,7 +71,7 @@ export class BannerNode extends DecoratorBlockNode {
   __borderRadius: string
 
   static getType(): string {
-    return 'button'
+    return 'banner'
   }
 
   static clone(node: BannerNode): BannerNode {
@@ -112,14 +112,6 @@ export class BannerNode extends DecoratorBlockNode {
       },
     }
   }
-
-  // __link: string
-  // __image: string
-  // __isNewTab: boolean
-  // __noFollow: boolean
-  // __width: string
-  // __height: string
-  // __borderRadius: string
 
   constructor(
     link: string,
