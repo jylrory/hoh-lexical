@@ -41,6 +41,7 @@ import Button from '../../ui/Button'
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog'
 import FileInput from '../../ui/FileInput'
 import TextInput from '../../ui/TextInput'
+import { uploadImage } from '../../utils/ghost'
 
 export type InsertImagePayload = Readonly<ImagePayload>
 
@@ -96,14 +97,17 @@ export function InsertImageUploadedDialogBody({
 }) {
   const [src, setSrc] = useState('')
   const [altText, setAltText] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
 
-  const isDisabled = src === ''
+
+  const isDisabled = src === '' || isUploading
 
   const loadImage = (files: FileList | null) => {
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result === 'string') {
         setSrc(reader.result)
+        console.log(reader.result)
       }
       return ''
     }
@@ -112,11 +116,26 @@ export function InsertImageUploadedDialogBody({
     }
   }
 
+  const onImageChane = async (files: FileList | null) => {
+    if (files === null) {
+      return
+    }
+    setIsUploading(true)
+    const file = files[0]
+    const { data } = await uploadImage(file)
+    setIsUploading(false)
+    if (!data) {
+      return
+    }
+
+    setSrc(data.url)
+  }
+
   return (
     <>
       <FileInput
         label='Image Upload'
-        onChange={loadImage}
+        onChange={onImageChane}
         accept='image/*'
         data-test-id='image-modal-file-upload'
       />
@@ -171,35 +190,16 @@ export function InsertImageDialog({
       {!mode && (
         <DialogButtonsList>
           <Button
-            data-test-id='image-modal-option-sample'
-            onClick={() =>
-              onClick(
-                hasModifier.current
-                  ? {
-                      altText:
-                        'Daylight fir trees forest glacier green high ice landscape',
-                      src: landscapeImage,
-                    }
-                  : {
-                      altText: 'Yellow flower in tilt shift lens',
-                      src: yellowFlowerImage,
-                    },
-              )
-            }
-          >
-            Sample
-          </Button>
-          <Button
             data-test-id='image-modal-option-url'
             onClick={() => setMode('url')}
           >
             URL
           </Button>
-          {/* <Button
+          <Button
             data-test-id="image-modal-option-file"
             onClick={() => setMode('file')}>
             File
-          </Button> */}
+          </Button>
         </DialogButtonsList>
       )}
       {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
