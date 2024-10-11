@@ -941,13 +941,13 @@ export default function ToolbarPlugin({
         </DropDown>
       ) : (
         <>
-          <FontDropDown
+          {/* <FontDropDown
             disabled={!isEditable}
             style={'font-family'}
             value={fontFamily}
             editor={activeEditor}
           />
-          <Divider />
+          <Divider /> */}
           <FontSize
             selectionFontSize={fontSize.slice(0, -2)}
             editor={activeEditor}
