@@ -102,19 +102,19 @@ export function InsertImageUploadedDialogBody({
 
   const isDisabled = src === '' || isUploading
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setSrc(reader.result)
-        console.log(reader.result)
-      }
-      return ''
-    }
-    if (files !== null) {
-      reader.readAsDataURL(files[0])
-    }
-  }
+  // const loadImage = (files: FileList | null) => {
+  //   const reader = new FileReader()
+  //   reader.onload = () => {
+  //     if (typeof reader.result === 'string') {
+  //       setSrc(reader.result)
+  //       console.log(reader.result)
+  //     }
+  //     return ''
+  //   }
+  //   if (files !== null) {
+  //     reader.readAsDataURL(files[0])
+  //   }
+  // }
 
   const onImageChane = async (files: FileList | null) => {
     if (files === null) {
@@ -373,7 +373,7 @@ function canDropImage(event: DragEvent): boolean {
 }
 
 function getDragSelection(event: DragEvent): Range | null | undefined {
-  let range
+  let range: any
   const target = event.target as null | Element | Document
   const targetWindow =
     target == null
@@ -388,7 +388,7 @@ function getDragSelection(event: DragEvent): Range | null | undefined {
     domSelection.collapse(event.rangeParent, event.rangeOffset || 0)
     range = domSelection.getRangeAt(0)
   } else {
-    throw Error(`Cannot get the selection when dragging`)
+    throw Error('Cannot get the selection when dragging')
   }
 
   return range
