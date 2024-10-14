@@ -163,7 +163,6 @@ export class BannerNode extends DecoratorBlockNode {
     imageElement.style.width = '100%'
     imageElement.style.height = '100%'
     imageElement.style.objectFit = 'cover'
-    console.log(imageElement)
 
     anchorElement.appendChild(imageElement)
 

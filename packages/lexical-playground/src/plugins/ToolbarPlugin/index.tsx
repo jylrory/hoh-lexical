@@ -38,7 +38,7 @@ import {
   $patchStyleText,
   $setBlocksType,
 } from '@lexical/selection'
-import { $isTableNode, $isTableSelection } from '@lexical/table'
+import { $getTableCellNodeFromLexicalNode, $isTableNode, $isTableSelection } from '@lexical/table'
 import {
   $findMatchingParent,
   $getNearestBlockElementAncestorOrThrow,
@@ -99,6 +99,7 @@ import { InsertTableDialog } from '../TablePlugin'
 import FontSize from './fontSize'
 import { InsertButtonDialog } from '../ButtonPlugin'
 import { InsertBannerDialog } from '../BannerPlugin'
+import { themeVariables } from '../../themes/PlaygroundEditorTheme'
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -687,11 +688,16 @@ export default function ToolbarPlugin({
       )
     }
     if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+      const isTableCellNode = !!$getTableCellNodeFromLexicalNode(selection.anchor.getNode())
+      // 表格特判
+      const type = isTableCellNode ? 'tableCell' : blockType
+      const defaultFontSize =  themeVariables[type]?.fontSize ?? '15px'
+      
       setFontSize(
-        $getSelectionStyleValueForProperty(selection, 'font-size', '15px'),
+        $getSelectionStyleValueForProperty(selection, 'font-size', defaultFontSize),
       )
     }
-  }, [activeEditor, editor])
+  }, [activeEditor, editor, blockType])
 
   useEffect(() => {
     return editor.registerCommand(

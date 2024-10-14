@@ -43,6 +43,7 @@ const patchStyleConversion = (
 
     const backgroundColor = node.style.backgroundColor
     const color = node.style.color
+    const fontSize = node.style.fontSize
 
     return {
       ...originalOutput,
@@ -53,6 +54,7 @@ const patchStyleConversion = (
           const style = [
             backgroundColor ? `background-color: ${backgroundColor}` : null,
             color ? `color: ${color}` : null,
+            fontSize ? `font-size: ${fontSize}` : null,
           ]
             .filter((item) => item !== null)
             .join('; ')

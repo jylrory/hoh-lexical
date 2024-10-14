@@ -8,6 +8,7 @@
 
 import type { EditorThemeClasses } from 'lexical'
 
+import type { CSSProperties } from 'react'
 import './PlaygroundEditorTheme.css'
 
 const theme: EditorThemeClasses = {
@@ -115,6 +116,24 @@ const theme: EditorThemeClasses = {
     underlineStrikethrough: 'hoh-theme__textUnderlineStrikethrough',
   },
   button: 'hoh-theme__button',
+}
+
+export const themeVariables: Record<
+  string,
+  { [key in keyof CSSProperties]: string } | undefined
+> = {
+  paragraph: {
+    fontSize: '14px'
+  },
+  h2: {
+    fontSize: '24px',
+  },
+  h3: {
+    fontSize: '16px',
+  },
+  tableCell: {
+    fontSize: '16px',
+  }
 }
 
 export default theme
