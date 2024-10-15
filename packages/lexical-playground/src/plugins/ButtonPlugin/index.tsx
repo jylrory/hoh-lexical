@@ -274,9 +274,9 @@ function ButtonPlugin() {
         (payload) => {
           const buttonNode = $createButtonNode(payload)
           $insertNodes([buttonNode])
-          if ($isRootOrShadowRoot(buttonNode.getParentOrThrow())) {
-            $wrapNodeInElement(buttonNode, $createParagraphNode).selectEnd()
-          }
+          // if ($isRootOrShadowRoot(buttonNode.getParentOrThrow())) {
+          //   $wrapNodeInElement(buttonNode, $createParagraphNode).selectEnd()
+          // }
 
           return true
         },

@@ -12,22 +12,23 @@ import {
   $getSelection,
   $isParagraphNode,
   $isRangeSelection,
+  $isRootNode,
   type BaseSelection,
   CLICK_COMMAND,
+  COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
   type DOMConversionMap,
   type DOMConversionOutput,
   type DOMExportOutput,
-  DecoratorNode,
-  type EditorConfig,
   type ElementFormatType,
+  KEY_ENTER_COMMAND,
   type LexicalEditor,
+  LexicalNode,
   type NodeKey,
   SELECTION_CHANGE_COMMAND,
   type Spread,
 } from 'lexical'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import ReactDOM from 'react-dom'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import useModal from '../hooks/useModal'
 import {
   DEFAULT_FONT_SIZE,
@@ -257,10 +258,15 @@ function ButtonComponent({
   const [isEditing, setIsEditing] = useState(false)
 
   const convertedFontSize = fontSize && convertStyleNumberToString(fontSize)
-  const convertedWidth = width ? convertStyleNumberToString(width) : DEFAULT_WIDTH
-  const convertedHeight = height ? convertStyleNumberToString(height) : DEFAULT_HEIGHT
-  const convertedBorderRadius =
-    borderRadius ? convertStyleNumberToString(borderRadius) : DEFAULT_RADIUS
+  const convertedWidth = width
+    ? convertStyleNumberToString(width)
+    : DEFAULT_WIDTH
+  const convertedHeight = height
+    ? convertStyleNumberToString(height)
+    : DEFAULT_HEIGHT
+  const convertedBorderRadius = borderRadius
+    ? convertStyleNumberToString(borderRadius)
+    : DEFAULT_RADIUS
 
   const buttonRef = useRef<HTMLDivElement>(null)
 
@@ -332,6 +338,34 @@ function ButtonComponent({
         CLICK_COMMAND,
         onClick,
         COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ENTER_COMMAND,
+        () => {
+          const selection = $getSelection()
+          const childNode = selection?.getNodes()[0]
+
+          if (childNode && $isButtonNode(childNode)) {
+            const parentNode = childNode.getParent() // 获取父节点
+            // 创建一个新的段落节点
+            const paragraphNode = $createParagraphNode()
+            // 插入到选中的 ButtonNode 之后
+            parentNode?.insertAfter(paragraphNode)
+
+            // * 通过 editor.update() 来延迟选中操作，避免重复插入
+            setTimeout(() => {
+              editor.update(() => {
+                paragraphNode.select()
+              })
+            }, 0)
+
+            // 阻止默认的回车行为
+            return true
+          }
+
+          return false // 继续执行默认行为
+        },
+        COMMAND_PRIORITY_EDITOR,
       ),
     )
 
@@ -423,26 +457,26 @@ export function $createButtonNode({
     noFollow,
     format,
     key,
-  );
+  )
 
   // 获取当前的选区
-  const selection = $getSelection();
+  const selection = $getSelection()
 
   // 检查当前的父节点，如果它不是段落节点，那么就包裹一层段落节点
   if (selection !== null && $isRangeSelection(selection)) {
-    const anchorNode = selection.anchor.getNode();
-    const parentNode = anchorNode.getParent();
+    const anchorNode = selection.anchor.getNode()
+    const parentNode = anchorNode.getParent()
 
     if (parentNode !== null && !$isParagraphNode(parentNode)) {
       // 如果父节点不是段落节点，创建一个段落节点并包裹按钮节点
-      const paragraphNode = $createParagraphNode();
-      paragraphNode.append(buttonNode);
-      return $applyNodeReplacement(paragraphNode);
+      const paragraphNode = $createParagraphNode()
+      paragraphNode.append(buttonNode)
+      return $applyNodeReplacement(paragraphNode)
     }
   }
 
   // 如果已经在段落里，直接返回按钮节点
-  return $applyNodeReplacement(buttonNode);
+  return $applyNodeReplacement(buttonNode)
 }
 
 function $convertButtonElement(domNode: Node): null | DOMConversionOutput {
@@ -458,17 +492,22 @@ function $convertButtonElement(domNode: Node): null | DOMConversionOutput {
   const height = button.style.height
   const borderRadius = button.style.borderRadius
 
-  const node = $createButtonNode({
+  const node = new ButtonNode(
     link,
     text,
     backgroundColor,
     textColor,
-    noFollow,
-    isNewTab,
     fontSize,
     width,
     height,
     borderRadius,
-  })
-  return { node }
+    isNewTab,
+    noFollow,
+  )
+  // const node = $applyNodeReplacement(buttonNode)
+  return { node: $applyNodeReplacement(node) }
+}
+
+function $isButtonNode(node: LexicalNode): node is ButtonNode {
+  return node instanceof ButtonNode
 }
