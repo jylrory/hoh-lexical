@@ -8,7 +8,10 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils'
 import {
   $applyNodeReplacement,
+  $createParagraphNode,
   $getSelection,
+  $isParagraphNode,
+  $isRangeSelection,
   type BaseSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
@@ -27,6 +30,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import useModal from '../hooks/useModal'
 import {
+  DEFAULT_FONT_SIZE,
+  DEFAULT_HEIGHT,
+  DEFAULT_RADIUS,
+  DEFAULT_WIDTH,
   UpdateButtonDialog,
 } from '../plugins/ButtonPlugin'
 import { convertStyleNumberToString } from '../utils/styleConvert'
@@ -125,10 +132,10 @@ export class ButtonNode extends DecoratorBlockNode {
     text: string,
     backgroundColor: string,
     textColor: string,
-    fontSize = '16px',
-    width = 'auto',
-    height = '40px',
-    borderRadius = '8px',
+    fontSize = DEFAULT_FONT_SIZE,
+    width = DEFAULT_WIDTH,
+    height = DEFAULT_HEIGHT,
+    borderRadius = DEFAULT_RADIUS,
     isNewTab = true,
     noFollow = false,
     format?: ElementFormatType,
@@ -250,10 +257,10 @@ function ButtonComponent({
   const [isEditing, setIsEditing] = useState(false)
 
   const convertedFontSize = fontSize && convertStyleNumberToString(fontSize)
-  const convertedWidth = width ? convertStyleNumberToString(width) : 'auto'
-  const convertedHeight = height ? convertStyleNumberToString(height) : 'auto'
+  const convertedWidth = width ? convertStyleNumberToString(width) : DEFAULT_WIDTH
+  const convertedHeight = height ? convertStyleNumberToString(height) : DEFAULT_HEIGHT
   const convertedBorderRadius =
-    borderRadius && convertStyleNumberToString(borderRadius)
+    borderRadius ? convertStyleNumberToString(borderRadius) : DEFAULT_RADIUS
 
   const buttonRef = useRef<HTMLDivElement>(null)
 
@@ -345,6 +352,7 @@ function ButtonComponent({
         style={{
           border: isSelected ? '1px solid blue' : 'none',
           cursor: 'pointer',
+          position: 'relative',
         }}
       >
         <a
@@ -402,22 +410,39 @@ export function $createButtonNode({
   format,
   key,
 }: ButtonPayload): ButtonNode {
-  return $applyNodeReplacement(
-    new ButtonNode(
-      link,
-      text,
-      backgroundColor,
-      textColor,
-      fontSize,
-      width,
-      height,
-      borderRadius,
-      isNewTab,
-      noFollow,
-      format,
-      key,
-    ),
-  )
+  const buttonNode = new ButtonNode(
+    link,
+    text,
+    backgroundColor,
+    textColor,
+    fontSize,
+    width,
+    height,
+    borderRadius,
+    isNewTab,
+    noFollow,
+    format,
+    key,
+  );
+
+  // 获取当前的选区
+  const selection = $getSelection();
+
+  // 检查当前的父节点，如果它不是段落节点，那么就包裹一层段落节点
+  if (selection !== null && $isRangeSelection(selection)) {
+    const anchorNode = selection.anchor.getNode();
+    const parentNode = anchorNode.getParent();
+
+    if (parentNode !== null && !$isParagraphNode(parentNode)) {
+      // 如果父节点不是段落节点，创建一个段落节点并包裹按钮节点
+      const paragraphNode = $createParagraphNode();
+      paragraphNode.append(buttonNode);
+      return $applyNodeReplacement(paragraphNode);
+    }
+  }
+
+  // 如果已经在段落里，直接返回按钮节点
+  return $applyNodeReplacement(buttonNode);
 }
 
 function $convertButtonElement(domNode: Node): null | DOMConversionOutput {

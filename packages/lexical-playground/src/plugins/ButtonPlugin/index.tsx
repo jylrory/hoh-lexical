@@ -3,12 +3,15 @@ import { $wrapNodeInElement, mergeRegister } from '@lexical/utils'
 import {
   $createParagraphNode,
   $getNodeByKey,
+  $getSelection,
   $insertNodes,
   $isRootOrShadowRoot,
   COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_HIGH,
   type LexicalCommand,
   type LexicalEditor,
   type NodeKey,
+  PASTE_COMMAND,
   createCommand,
 } from 'lexical'
 import { useEffect, useMemo, useState } from 'react'
@@ -23,6 +26,13 @@ import { DialogActions } from '../../ui/Dialog'
 import DropdownColorPicker from '../../ui/DropdownColorPicker'
 import TextInput from '../../ui/TextInput'
 import './index.css'
+
+export const DEFAULT_WIDTH = '180px'
+export const DEFAULT_HEIGHT = '40px'
+export const DEFAULT_FONT_SIZE = '16px'
+export const DEFAULT_RADIUS = '30px'
+export const DEFAULT_BACKGROUND_COLOR = '#f5a632'
+export const DEFAULT_TEXT_COLOR = '#ffffff'
 
 export type InsertButtonPayload = Readonly<ButtonPayload>
 
@@ -87,18 +97,20 @@ function ButtonForm({
   const [link, setLink] = useState(initData?.link || '')
   const [text, setText] = useState(initData?.text || '')
   const [backgroundColor, setBackgroundColor] = useState(
-    toHex(initData?.backgroundColor || '#3264ff'),
+    toHex(initData?.backgroundColor || DEFAULT_BACKGROUND_COLOR),
   )
   const [textColor, setTextColor] = useState(
-    toHex(initData?.textColor || '#ffffff'),
+    toHex(initData?.textColor || DEFAULT_TEXT_COLOR),
   )
   const [noFollow, setNoFollow] = useState(initData?.noFollow ?? false)
   const [isNewTab, setIsNewTab] = useState(initData?.isNewTab ?? true)
-  const [fontSize, setFontSize] = useState(initData?.fontSize || '16')
-  const [width, setWidth] = useState(initData?.width ?? 'auto')
-  const [height, setHeight] = useState(initData?.height ?? 'auto')
+  const [fontSize, setFontSize] = useState(
+    initData?.fontSize || DEFAULT_FONT_SIZE,
+  )
+  const [width, setWidth] = useState(initData?.width ?? DEFAULT_WIDTH)
+  const [height, setHeight] = useState(initData?.height ?? DEFAULT_HEIGHT)
   const [borderRadius, setBorderRadius] = useState(
-    initData?.borderRadius ?? '8px',
+    initData?.borderRadius ?? DEFAULT_RADIUS,
   )
 
   const isConfirmDisabled = useMemo(() => {
