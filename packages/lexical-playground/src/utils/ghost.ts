@@ -1,6 +1,6 @@
 import { type Post, TSGhostAdminAPI } from '@ts-ghost/admin-api'
-import type { GetBlogPostResponse, GetDataResponse } from '../type'
 import { message } from 'antd'
+import { compressImage } from './image'
 
 interface ImportMetaEnv {
   readonly VITE_GHOST_URL: string
@@ -12,10 +12,10 @@ interface ImportMeta {
 }
 
 export const GHOST_URL =
-  import.meta.env.VITE_GHOST_URL || 'https://travel-deals.tw'
+  import.meta.env.VITE_GHOST_URL || 'https://localhost:5389'
 const VITE_GHOST_ADMIN_API_KEY =
   import.meta.env.VITE_GHOST_ADMIN_API_KEY ||
-  '66f65f41adcdc40058617119:2eb83c072aeb518cc55d9c99174e91711990b4326c03b36d39f990086701f04f'
+  '6704cc47ee331bf5c8c06b43:1450c0c69713cc6ce3dffd27808fca9c0ac01287a238754cba8934c233401d9f'
 
 const api = new TSGhostAdminAPI(GHOST_URL, VITE_GHOST_ADMIN_API_KEY, 'v5.91.0')
 
@@ -361,28 +361,34 @@ export async function validateSlug(slug: string) {
 }
 
 export async function uploadImage(file: File) {
-  const formData = new FormData()
-  formData.append('file', file)
+  try {
+    const compressedFile = await compressImage(file)
+    
+    const formData = new FormData()
+    formData.append('file', compressedFile)
 
-  const response = await fetch('/ghost/api/admin/images/upload/', {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  })
+    const response = await fetch('/ghost/api/admin/images/upload/', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    })
 
-  if (!response.ok) {
-    return handleError([
+    if (!response.ok) {
+      throw new Error('Failed to upload image')
+    }
+
+    const data = await response.json()
+    return {
+      success: true,
+      data: data.images[0] as { url: string; ref: string },
+    }
+  } catch (error) {
+    handleError([
       {
-        message: 'Failed to upload image',
+        message: error instanceof Error ? error.message : JSON.stringify(error),
         type: 'error',
       },
     ])
-  }
-
-  const data = await response.json()
-  return {
-    success: true,
-    data: data.images[0] as { url: string; ref: string },
   }
 }
 

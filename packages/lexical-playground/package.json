@@ -30,6 +30,7 @@
     "@ts-ghost/admin-api": "^4.2.1",
     "agent-base": "^7.1.1",
     "antd": "^5.20.5",
+    "compressorjs": "^1.2.1",
     "katex": "^0.16.10",
     "lexical": "0.17.1",
     "lodash-es": "^4.17.21",
