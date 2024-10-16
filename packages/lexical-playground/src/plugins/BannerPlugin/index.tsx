@@ -17,6 +17,8 @@ import Button from '../../ui/Button'
 import { DialogActions } from '../../ui/Dialog'
 import TextInput from '../../ui/TextInput'
 import './index.css'
+import FileInput from '../../ui/FileInput'
+import { uploadImage } from '../../utils/ghost'
 
 export type InsertBannerPayload = Readonly<BannerPayload>
 
@@ -88,10 +90,28 @@ function BannerForm({
   const [borderRadius, setBorderRadius] = useState(
     initData?.borderRadius ?? '0px',
   )
+  const [isUploading, setIsUploading] = useState(false)
 
   const isConfirmDisabled = useMemo(() => {
-    return image === ''
-  }, [image])
+    return image === '' || isUploading
+  }, [image, isUploading])
+
+  const onUploadImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files === null) {
+      return
+    }
+
+    setIsUploading(true)
+    const file = files[0]
+    const { data } = await uploadImage(file)
+    setIsUploading(false)
+    if (!data) {
+      return
+    }
+
+    setImage(data.url)
+  }
 
   return (
     <>
@@ -111,6 +131,14 @@ function BannerForm({
           onChange={setImage}
         />
       </div>
+      <div className='button-form row'>
+          <input
+            type='file'
+            accept='image/*'
+            className='Input__input'
+            onChange={onUploadImageChange}
+          />
+        </div>
       <div className='button-form row'>
         <TextInput
           label='Image ALT'
