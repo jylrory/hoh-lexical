@@ -178,7 +178,15 @@ export class ButtonNode extends DecoratorBlockNode {
     element.style.borderRadius = convertStyleNumberToString(this.__borderRadius)
     element.style.textDecoration = 'none'
 
-    return { element }
+    const container = document.createElement('span')
+    container.appendChild(element)
+    container.style.display = 'block'
+    if (this.__format) {
+      container.style.textAlign = this.__format
+      element.setAttribute('data-format', this.__format)
+    }
+
+    return { element: container }
   }
 
   exportJSON(): SerializedButtonNode {
@@ -490,6 +498,7 @@ function $convertButtonElement(domNode: Node): null | DOMConversionOutput {
   const width = button.style.width
   const height = button.style.height
   const borderRadius = button.style.borderRadius
+  const format = button.getAttribute('data-format') as ElementFormatType
 
   const node = new ButtonNode(
     link,
@@ -502,8 +511,8 @@ function $convertButtonElement(domNode: Node): null | DOMConversionOutput {
     borderRadius,
     isNewTab,
     noFollow,
+    format,
   )
-  // const node = $applyNodeReplacement(buttonNode)
   return { node: $applyNodeReplacement(node) }
 }
 
