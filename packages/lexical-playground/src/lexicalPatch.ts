@@ -77,6 +77,10 @@ export function applyHtmlToRichContentPatches() {
         conversion: patchStyleConversion(importers?.span),
         priority: 0,
       }),
+      strong: () => ({
+        conversion: patchStyleConversion(importers?.strong),
+        priority: 0,
+      }),
       sub: () => ({
         conversion: createMissedFormatConverter('subscript'),
         priority: 0,
