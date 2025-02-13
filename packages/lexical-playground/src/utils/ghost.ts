@@ -363,7 +363,7 @@ export async function validateSlug(slug: string) {
 export async function uploadImage(file: File) {
   try {
     const compressedFile = await compressImage(file)
-    
+
     const formData = new FormData()
     formData.append('file', compressedFile)
 
@@ -390,6 +390,30 @@ export async function uploadImage(file: File) {
       },
     ])
   }
+}
+
+export function isEmptyContent(lexicalHtml: string) {
+  return lexicalHtml === '<p class="hoh-theme__paragraph"><br></p>'
+}
+
+export function convertHtmlForGhost(htmlString: string) {
+  const htmlForGhost = `<!--kg-card-begin: html-->\n${htmlString}\n<!--kg-card-end: html-->`
+  return htmlForGhost
+}
+
+/**
+ * 判断 lexical 导出的 html 是否和 ghost 的 html 内容一致
+ */
+export function isContentSame(lexicalHtml: string, ghostHtml: string) {
+  const htmlForGhost = convertHtmlForGhost(lexicalHtml)
+  const replacedHtmlForGhost = htmlForGhost.replace(/\n/g, '')
+  const replacedGhostHtml = ghostHtml.replace(/\n/g, '')
+  const lexicalContent = document.createElement('div')
+  lexicalContent.innerHTML = replacedHtmlForGhost
+  const ghostContent = document.createElement('div')
+  ghostContent.innerHTML = replacedGhostHtml
+
+  return lexicalContent.isEqualNode(ghostContent)
 }
 
 function handleError(

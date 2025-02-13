@@ -1,13 +1,20 @@
 import { LeftOutlined } from '@ant-design/icons'
-import { $generateHtmlFromNodes } from '@lexical/html'
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { Button, message } from 'antd'
-import { useCallback, useState } from 'react'
+import { $getRoot, type LexicalEditor } from 'lexical'
+import { useCallback, useEffect, useState } from 'react'
 import { usePostContext } from '../../context/PostContext'
+import useModal from '../../hooks/useModal'
+import type { Type } from '../../type'
+import { DialogActions } from '../../ui/Dialog'
 import {
   GHOST_URL,
+  convertHtmlForGhost,
   createPage,
   createPost,
+  isContentSame,
+  isEmptyContent,
   publishPage,
   publishPost,
   unpublishPage,
@@ -16,15 +23,71 @@ import {
   updatePost,
 } from '../../utils/ghost'
 import './index.css'
-import type { Type } from '../../type'
 
 export default function EditorHeader(): JSX.Element {
   const [editor] = useLexicalComposerContext()
   const postContext = usePostContext()
+  const [modal, showModal] = useModal()
+  // 是否开始草稿保存倒计时
+  const [isDraftSaving, setIsDraftSaving] = useState(false)
 
   // loading 状态
   const [isSaveLoading, setIsSaveLoading] = useState(false)
   const [isPublishLoading, setIsPublishLoading] = useState(false)
+
+  useEffect(() => {
+    if (!postContext) {
+      return
+    }
+
+    const id = postContext?.post.id || 'empty'
+    const draft = localStorage.getItem(`draft-${id}`)
+    const isSame = isContentSame(draft ?? '', postContext.post.html ?? '')
+
+    if (draft && !isEmptyContent(draft) && !isSame) {
+      showModal('Restore Draft', (onClose) => (
+        <RestoreDraftDialog
+          activeEditor={editor}
+          onClose={() => {
+            setIsDraftSaving(true)
+            onClose()
+          }}
+          draft={draft}
+        />
+      ))
+    } else {
+      setIsDraftSaving(true)
+    }
+  }, [editor, postContext, showModal])
+
+  useEffect(() => {
+    if (!isDraftSaving) {
+      return
+    }
+
+    const id = postContext?.post.id || 'empty'
+    // 定时保存草稿
+    const interval = setInterval(() => {
+      if (!postContext?.post) {
+        return
+      }
+
+      editor.read(async () => {
+        const htmlString = $generateHtmlFromNodes(editor, null)
+        if (
+          isEmptyContent(htmlString) ||
+          isContentSame(htmlString, postContext.post.html ?? '')
+        ) {
+          return
+        }
+        localStorage.setItem(`draft-${id}`, htmlString)
+      })
+    }, 30 * 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [isDraftSaving, editor, postContext])
 
   // 根据 type 展示不同的列表名称
   const listDisplayName = postContext?.type === 'post' ? 'posts' : 'pages'
@@ -41,13 +104,17 @@ export default function EditorHeader(): JSX.Element {
     editor.read(async () => {
       const htmlString = $generateHtmlFromNodes(editor, null)
       // 为了让 Ghost 识别，不转换格式
-      const htmlForGhost = `<!--kg-card-begin: html-->\n${htmlString}\n<!--kg-card-end: html-->`
+      const htmlForGhost = convertHtmlForGhost(htmlString)
       const isNewPost = !postContext.post?.id
 
       setIsSaveLoading(true)
       isNewPost
         ? await createNewPost(htmlForGhost, postContext.type)
         : await updateCurrentPost(htmlForGhost, postContext.type)
+
+      // 清除草稿
+      const id = postContext.post.id || 'empty'
+      localStorage.removeItem(`draft-${id}`)
 
       setIsSaveLoading(false)
     })
@@ -250,8 +317,46 @@ export default function EditorHeader(): JSX.Element {
           />
         </Button>
       </div>
+      {modal}
     </div>
   ) : (
     <></>
+  )
+}
+
+// 是否需要还原草稿的对话框
+function RestoreDraftDialog({
+  activeEditor,
+  onClose,
+  draft,
+}: {
+  draft: string
+  activeEditor: LexicalEditor
+  onClose: () => void
+}): JSX.Element {
+  const restoreDraft = useCallback(() => {
+    activeEditor.update(() => {
+      // 使用 draft 更新编辑器内容
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(draft, 'text/html')
+      // 使用 $generateNodesFromDOM 将 HTML 转换为 Lexical 节点
+      const nodes = $generateNodesFromDOM(activeEditor, doc)
+      // 清空当前编辑器内容并插入生成的节点
+      const root = $getRoot()
+      root.clear() // 清空编辑器内容
+      root.append(...nodes) // 插入生成的节点
+    })
+    onClose()
+  }, [activeEditor, draft, onClose])
+
+  return (
+    <>
+      <div>
+        There is a draft available for this post. Would you like to restore it?
+      </div>
+      <DialogActions>
+        <Button onClick={restoreDraft}>Restore</Button>
+      </DialogActions>
+    </>
   )
 }
