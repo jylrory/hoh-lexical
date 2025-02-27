@@ -112,10 +112,6 @@ export default function EditorHeader(): JSX.Element {
         ? await createNewPost(htmlForGhost, postContext.type)
         : await updateCurrentPost(htmlForGhost, postContext.type)
 
-      // 清除草稿
-      const id = postContext.post.id || 'empty'
-      localStorage.removeItem(`draft-${id}`)
-
       setIsSaveLoading(false)
     })
   }
@@ -144,6 +140,15 @@ export default function EditorHeader(): JSX.Element {
 
     if (!updatedPostResponse.success) {
       return
+    }
+
+    // 如果返回的文章和当前文章一致，清除草稿
+    const id = postContext?.post.id || 'empty'
+    const draft = localStorage.getItem(`draft-${id}`)
+    const isSame = isContentSame(draft ?? '', postContext.post.html ?? '')
+    if (isSame && draft) {
+      localStorage.setItem(`draft-${id}.bak`, draft)
+      localStorage.removeItem(`draft-${id}`)
     }
 
     postContext.updatePost({
