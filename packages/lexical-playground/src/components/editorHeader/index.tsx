@@ -145,8 +145,7 @@ export default function EditorHeader(): JSX.Element {
     // 如果返回的文章和当前文章一致，清除草稿
     const id = postContext?.post.id || 'empty'
     const draft = localStorage.getItem(`draft-${id}`)
-    const isSame = isContentSame(draft ?? '', postContext.post.html ?? '')
-    if (isSame && draft) {
+    if (draft) {
       localStorage.setItem(`draft-${id}.bak`, draft)
       localStorage.removeItem(`draft-${id}`)
     }
